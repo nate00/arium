@@ -1,0 +1,9 @@
+#!/bin/bash
+# TODO: Shell-agnostic shebang?
+# TODO: Proper applescript?
+# TODO: File permissions
+# TODO: Proper escaping?
+
+image=$1
+
+osascript -e "set posix to \"${image}\"" -e 'set colonified to POSIX file posix' -e 'tell application "Finder" to set desktop picture to {colonified} as alias'
