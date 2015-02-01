@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+file = Dir.glob("/Users/academia/Desktop/backgrounds/*").to_a.sample
+
+puts "Setting desktop to #{file}"
+
+`bin/set_desktop #{file}`
