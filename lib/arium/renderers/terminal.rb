@@ -2,6 +2,25 @@ require 'colorize'
 module Arium
   module Renderers
     class Terminal
+      include Persistence
+
+      def render(infile)
+        colors =
+          read_generation(infile).map do |row|
+            row.map do |cell|
+              if cell == 'plain'
+                :green
+              elsif cell == 'mountain'
+                :white
+              else
+                :red
+              end
+            end
+          end
+
+        puts render_colors(colors, debug: true)
+      end
+
       def render_colors(grid, debug: false)
         grid.map.with_index do |row, row_index|
           row.map.with_index do |cell, col_index|
