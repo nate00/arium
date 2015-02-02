@@ -4,22 +4,23 @@ module Arium
     class Terminal
       include Persistence
 
+      COLORS = {
+        'plain' => :green,
+        'mountain' => :white,
+      }
+
       def render(infile)
         colors =
           read_generation(infile).map do |row|
             row.map do |cell|
-              if cell == 'plain'
-                :green
-              elsif cell == 'mountain'
-                :white
-              else
-                :red
-              end
+              COLORS[cell] || :red
             end
           end
 
         puts render_colors(colors, debug: true)
       end
+
+      private
 
       def render_colors(grid, debug: false)
         grid.map.with_index do |row, row_index|
@@ -30,15 +31,34 @@ module Arium
         end.join("\n")
       end
 
-      private
-
       def str_for(row, col, debug, base: 10)
         return ' ' unless debug
 
         # You can find a cell's row by looking to a nearby diagnonal for the
         # ones digit and a nearby column for the tens digit. Similarly, a cell's
-        # column can be deduced from a nearby diagonal and row. (Looking at an
-        # example is easier than reading the code.)
+        # column can be deduced from a nearby diagonal and row. Look:
+        #
+        #  +000000000+111111111+222222222
+        #  01........01........01........
+        #  0.2.......0.2.......0.2.......
+        #  0..3......0..3......0..3......
+        #  0...4.....0...4.....0...4.....
+        #  0....5....0....5....0....5....
+        #  0.....6...0.....6...0.....6...
+        #  0......7..0......7..0......7..
+        #  0.......8.0.......8.0.......8.
+        #  0........90........90........9
+        #  +000000000+111111111+222222222
+        #  11........11........11........
+        #  1.2.......1.2.......1.2.......
+        #  1..3......1..3......1..3......
+        #  1...4.....1...4.....1...4.....
+        #  1....5....1....5....1....5....
+        #  1.....6...1.....6...1.....6...
+        #  1......7..1......7..1......7..
+        #  1.......8.1.......8.1.......8.
+        #  1........91........91........9
+        #
         if row % base == 0 && col % base == 0
           '+'                                 # intersection
         elsif row % base == 0
