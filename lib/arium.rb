@@ -1,0 +1,6 @@
+require 'arium/persistence'
+require 'arium/version'
+require 'arium/world'
+require 'arium/creators/example'
+require 'arium/evolvers/example'
+require 'arium/renderers/terminal'

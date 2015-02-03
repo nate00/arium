@@ -1,3 +1,10 @@
+PATH
+  remote: .
+  specs:
+    arium (0.0.0)
+      colorize
+      whenever
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -17,6 +24,5 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  colorize
+  arium!
   pry
-  whenever
