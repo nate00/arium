@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency      'whenever', '~> 0.9.4'
   s.add_runtime_dependency      'colorize', '~> 0.7.5'
+  s.add_runtime_dependency      'chunky_png', '~> 1.3.3'
 
   s.add_development_dependency  'pry', '~> 0.10.1'
 end

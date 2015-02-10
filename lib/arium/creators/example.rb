@@ -11,11 +11,11 @@ module Arium
       end
 
       def rows
-        @rows ||= 10
+        @rows ||= 100
       end
 
       def columns
-        @columns ||= 10
+        @columns ||= 100
       end
     end
   end
