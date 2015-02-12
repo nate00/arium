@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require 'arium'
+
+root = File.expand_path('..', File.expand_path(File.dirname(__FILE__)))
+dir = File.join(root, 'generations')
+
+previous_gen =
+  Dir.glob(File.join(dir, '*'))
+    .map { |f| File.basename(f) }
+    .reject { |f| f.include? '.png' }
+    .map { |f| f.to_i }
+    .max
+next_gen = previous_gen + 1
+
+world = Arium::World.new(Arium::Creators::Example.new, [Arium::Evolvers::Example.new])
+
+world.next_generation(File.join(dir, previous_gen.to_s), File.join(dir, next_gen.to_s))
+
+Arium::Renderers::PNGGrid.new.render(File.join(dir, next_gen.to_s))
+
+FileUtils.move('outfile.png', File.join(dir, "#{next_gen}.png"))
+`bin/set_desktop #{File.join(dir, "#{next_gen}.png")}`
+FileUtils.rm(File.join(dir, "#{previous_gen}.png"))
