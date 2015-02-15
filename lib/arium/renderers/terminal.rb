@@ -7,6 +7,8 @@ module Arium
       COLORS = {
         'plain' => :green,
         'mountain' => :white,
+        'farm' => :light_red,
+        'village' => :gray,
       }
 
       def render(infile)

@@ -7,6 +7,8 @@ module Arium
       COLORS = {
         'plain' => 'green',
         'mountain' => 'white',
+        'farm' => 'brown',
+        'village' => 'gray',
       }
 
       UNIT = 10
