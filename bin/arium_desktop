@@ -13,7 +13,7 @@ previous_gen =
     .max
 next_gen = previous_gen + 1
 
-world = Arium::World.new(Arium::Creators::Example.new, [Arium::Evolvers::Example.new])
+world = Arium::World.new(Arium::Creators::Village.new, [Arium::Evolvers::Village.new])
 
 world.next_generation(File.join(dir, previous_gen.to_s), File.join(dir, next_gen.to_s))
 
