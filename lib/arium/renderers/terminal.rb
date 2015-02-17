@@ -2,6 +2,7 @@ require 'colorize'
 module Arium
   module Renderers
     class Terminal
+      include Configurable
       include Persistence
 
       COLORS = {
@@ -11,6 +12,11 @@ module Arium
         'village' => :gray,
       }
 
+      # Config:
+      #   debug
+
+      config.debug = true
+
       def render(infile)
         colors =
           read_generation(infile).map do |row|
@@ -19,7 +25,7 @@ module Arium
             end
           end
 
-        puts render_colors(colors, debug: true)
+        puts render_colors(colors, debug: config.debug)
       end
 
       private

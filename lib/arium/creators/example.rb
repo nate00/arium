@@ -1,21 +1,17 @@
 module Arium
   module Creators
     class Example
-      attr_accessor :rows, :columns
-      def initialize
-        yield self if block_given?
-      end
+      include Configurable
+
+      # Config:
+      #   rows
+      #   columns
+
+      config.rows = 100
+      config.columns = 100
 
       def create
-        columns.times.map { [:plain] * rows }
-      end
-
-      def rows
-        @rows ||= 100
-      end
-
-      def columns
-        @columns ||= 100
+        config.columns.times.map { [:plain] * config.rows }
       end
     end
   end

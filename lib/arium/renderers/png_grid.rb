@@ -1,4 +1,5 @@
 require 'chunky_png'
+
 module Arium
   module Renderers
     class PNGGrid
@@ -11,8 +12,12 @@ module Arium
         'village' => 'gray',
       }
 
-      UNIT = 10
-      OUTFILE = 'outfile.png'
+      # Config:
+      #   outfile
+      #   pixels_per_cell
+
+      config.pixels_per_cell = 10
+      config.outfile = 'outfile.png'
 
       def render(infile)
         colors =
@@ -22,9 +27,9 @@ module Arium
             end
           end
 
-        height = colors.size * UNIT
-        width = colors.first.size * UNIT
-        with_image(width, height, OUTFILE) do |image|
+        height = colors.size * unit
+        width = colors.first.size * unit
+        with_image(width, height, config.outfile) do |image|
           colors.map.with_index do |row, row_index|
             row.map.with_index do |color, col_index|
               paint(image, color, row_index, col_index)
@@ -35,6 +40,10 @@ module Arium
 
       private
 
+      def unit
+        config.pixels_per_cell
+      end
+
       def with_image(width, height, filename)
         image = ChunkyPNG::Image.new(width, height, ChunkyPNG::Color::TRANSPARENT)
         yield image
@@ -42,9 +51,9 @@ module Arium
       end
 
       def paint(image, color, row, col)
-        left = col * UNIT
-        top = row * UNIT
-        image.rect(left, top, left + UNIT, top + UNIT, ChunkyPNG::Color::TRANSPARENT, color)
+        left = col * unit
+        top = row * unit
+        image.rect(left, top, left + unit, top + unit, ChunkyPNG::Color::TRANSPARENT, color)
       end
     end
   end
