@@ -10,22 +10,25 @@ module Arium
         'mountain' => :white,
         'farm' => :light_red,
         'village' => :gray,
+        'water' => :blue,
       }
 
       # Config:
-      #   debug
+      #   numbered_cells
+      #   whiny_unrecognized
 
-      config.debug = true
+      config.numbered_cells = true
+      config.whiny_unrecognized = true
 
       def render(infile)
         colors =
           read_generation(infile).map do |row|
             row.map do |cell|
-              COLORS[cell] || :red
+              COLORS[cell] || unrecognized(cell)
             end
           end
 
-        puts render_colors(colors, debug: config.debug)
+        puts render_colors(colors, debug: config.numbered_cells)
       end
 
       private
@@ -37,6 +40,14 @@ module Arium
               .colorize(color: :black, background: cell)
           end.join
         end.join("\n")
+      end
+
+      def unrecognized(cell)
+        if config.whiny_unrecognized
+          raise RuntimeError, "Unrecognized: #{cell}"
+        else
+          :red
+        end
       end
 
       def str_for(row, col, debug, base: 10)

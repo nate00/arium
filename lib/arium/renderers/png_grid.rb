@@ -3,6 +3,7 @@ require 'chunky_png'
 module Arium
   module Renderers
     class PNGGrid
+      include Configurable
       include Persistence
 
       COLORS = {
@@ -10,6 +11,7 @@ module Arium
         'mountain' => 'white',
         'farm' => 'brown',
         'village' => 'gray',
+        'water' => 'blue',
       }
 
       # Config:
