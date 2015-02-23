@@ -1,15 +1,17 @@
 module Arium
   module Evolvers
     class Village
-      def evolve(previous_gen)
-        Generation.wrap(previous_gen).map_generation do |cell, r, c|
+      include EvolverUtils
+
+      def evolve_generation(previous_gen)
+        previous_gen.map_generation do |cell, r, c|
           case cell.value
             when 'plain' then evolve_plain(cell)
             when 'farm' then evolve_farm(cell)
             when 'village' then evolve_village(cell)
             else cell.value
           end
-        end.unwrap
+        end
       end
 
       private

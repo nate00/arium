@@ -1,15 +1,16 @@
 module Arium
   module Evolvers
     class Water
+      include EvolverUtils
 
-      def evolve(previous)
-        Generation.wrap(previous).map_generation do |cell, _r, _c|
+      def evolve_generation(previous)
+        previous.map_generation do |cell, _r, _c|
           if become_water?(cell)
             'water'
           else
             non_water_successor(cell)
           end
-        end.unwrap
+        end
       end
 
       private
