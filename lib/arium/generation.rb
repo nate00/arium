@@ -35,8 +35,8 @@ module Arium
       c_start += column_count if c_start < 0
 
       self.class.new(
-        Range.new(r_start, r_start + r_length).map do |r|
-          Range.new(c_start, c_start + c_length).map do |c|
+        Range.new(r_start, r_start + r_length, exclude_end: true).map do |r|
+          Range.new(c_start, c_start + c_length, exclude_end: true).map do |c|
             at(r, c)
           end
         end
@@ -61,6 +61,10 @@ module Arium
 
     def column_count
       @array.first.count
+    end
+
+    def inspect
+      "<Generation:#{@array.inspect}>"
     end
 
     private
