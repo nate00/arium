@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+require 'arium'
+
+root = File.expand_path('..', File.expand_path(File.dirname(__FILE__)))
+dir = File.join(root, 'generations')
+
+gen = 0
+loop do
+  file = File.join(dir, gen.to_s)
+  exit unless File.exist?(file)
+  Arium::Renderers::Terminal.new.render(file)
+  sleep 0.25
+  gen += 1
+end
