@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require 'arium'
+
+creator = Arium::Creators::Village.with_config(
+  rows: 50,
+  columns: 200,
+)
+
+evolvers = [
+  Arium::Evolvers::Water.new,
+  Arium::Evolvers::Village.new,
+]
+
+world = Arium::World.new(creator, evolvers)
+
+renderer = Arium::Renderers::Terminal.new
+
+generations = 20
+
+FileUtils.mkdir_p('demo_generations')
+
+world.first_generation('demo_generations/0')
+renderer.render("demo_generations/#{0}")
+
+(generations - 1).times do |i|
+  world.next_generation("demo_generations/#{i}", "demo_generations/#{i + 1}")
+  renderer.render("demo_generations/#{i}")
+end
