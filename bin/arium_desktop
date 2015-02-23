@@ -11,7 +11,11 @@ Arium::Creators::Village.configure do |config|
   config.lakes = 2
 end
 
-world = Arium::World.new(Arium::Creators::Village.new, [Arium::Evolvers::Village.new])
+world = Arium::World.with_config(
+  creator: Arium::Creators::Village.new,
+  evolvers: [Arium::Evolvers::Village.new, Arium::Evolvers::Water.new],
+  generation_locator: proc { |number| File.join(dir, number.to_s) }
+)
 
 previous_gen =
   Dir.glob(File.join(dir, '*'))
@@ -19,14 +23,13 @@ previous_gen =
     .reject { |f| f.include? '.png' }
     .map { |f| f.to_i }
     .max
+next_gen = if previous_gen
+             previous_gen + 1
+           else
+             0
+           end
 
-if previous_gen
-  next_gen = previous_gen + 1
-  world.next_generation(File.join(dir, previous_gen.to_s), File.join(dir, next_gen.to_s))
-else
-  next_gen = 0
-  world.first_generation(File.join(dir, next_gen.to_s))
-end
+world.generation(next_gen)
 
 Arium::Renderers::PNGGrid.new.render(File.join(dir, next_gen.to_s))
 
