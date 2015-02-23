@@ -1,5 +1,6 @@
 require 'arium/persistence'
 require 'arium/version'
+require 'arium/cell'
 require 'arium/world'
 require 'arium/generation'
 require 'arium/configurable'
