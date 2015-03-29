@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'bundler/setup'
 require 'arium'
 
 creator = Arium::Creators::Village.with_config(
