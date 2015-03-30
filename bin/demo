@@ -25,6 +25,8 @@ generations = 20
 
 FileUtils.mkdir_p('demo_generations')
 
-generations.times do |i|
+i = 0
+loop do
   renderer.render(world.generation(i))
+  i += 1
 end
