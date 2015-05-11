@@ -6,11 +6,13 @@ require 'arium'
 creator = Arium::Creators::Village.with_config(
   rows: 50,
   columns: 200,
+  villages: 10,
+  lakes: 3
 )
 
 evolvers = [
   Arium::Evolvers::Water.new,
-  Arium::Evolvers::Village.new,
+  Arium::Evolvers::Nomad.new,
 ]
 
 world = Arium::World.with_config(

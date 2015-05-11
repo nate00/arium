@@ -17,8 +17,8 @@ module Arium
 
       def become_water?(cell)
         probability = 0
-        probability += 0.95 if cell.value == 'water'
-        probability += 0.05 / 9 * cell.neighbors.select { |n, _r, _c| n && (n.value == 'water') }.count
+        probability += 0.98 if cell.value == 'water'
+        probability += 0.02 / 9 * cell.neighbors.select { |n, _r, _c| n && (n.value == 'water') }.count
         Kernel.rand < probability
       end
 

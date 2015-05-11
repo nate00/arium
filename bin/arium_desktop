@@ -6,14 +6,16 @@ root = File.expand_path('..', File.expand_path(File.dirname(__FILE__)))
 dir = File.join(root, 'generations')
 FileUtils.mkdir_p(dir)
 
-Arium::Creators::Village.configure do |config|
-  config.villages = 3
-  config.lakes = 2
-end
+creator = Arium::Creators::Village.with_config(
+  rows: 50,
+  columns: 200,
+  villages: 10,
+  lakes: 3
+)
 
 world = Arium::World.with_config(
-  creator: Arium::Creators::Village.new,
-  evolvers: [Arium::Evolvers::Village.new, Arium::Evolvers::Water.new],
+  creator: creator,
+  evolvers: [Arium::Evolvers::Water.new, Arium::Evolvers::Nomad.new],
   generation_locator: proc { |number| File.join(dir, number.to_s) }
 )
 

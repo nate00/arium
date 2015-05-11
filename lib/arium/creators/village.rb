@@ -31,9 +31,9 @@ module Arium
         return add_village!(grid, attempts: attempts + 1) if grid[nucleus_r][nucleus_c] == 'water'
 
         grid[nucleus_r    ][nucleus_c    ] = 'village'
-        grid[nucleus_r    ][nucleus_c + 1] = 'village'
-        grid[nucleus_r + 1][nucleus_c    ] = 'farm'
         grid[nucleus_r + 1][nucleus_c + 1] = 'farm'
+        grid[nucleus_r + 1][nucleus_c    ] = 'farm'
+        grid[nucleus_r + 1][nucleus_c - 1] = 'farm'
       end
 
       def add_lake!(grid)

@@ -14,20 +14,29 @@ module Arium
       @array[r] && @array[r][c]
     end
 
-    def each(&block)
-      @array.each.with_index do |row, r|
-        row.each.with_index do |cell, c|
-          yield cell, r, c
+    def [](point)
+      at(point.row, point.col)
+    end
+
+    def each
+      unless block_given?
+        return self.enum_for(__method__)
+      end
+      @array.each do |row|
+        row.each do |cell|
+          yield cell
         end
       end
     end
 
     def map_generation
-      result = Array.new(@array.size) { Array.new }
-      each do |cell, r, c|
-        result[r][c] = yield cell, r, c
-      end
-      self.class.wrap result
+      self.class.wrap(
+        @array.map do |row|
+          row.map do |cell|
+            yield cell
+          end
+        end
+      )
     end
 
     def slice(r_start, r_length, c_start, c_length)
