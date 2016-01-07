@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'arium'
+require_relative 'bootstrap'
 
 root = File.expand_path('..', File.expand_path(File.dirname(__FILE__)))
 dir = File.join(root, 'generations')

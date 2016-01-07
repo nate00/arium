@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'bundler/setup'
-require 'arium'
+require_relative 'bootstrap'
 
 creator = Arium::Creators::Village.with_config(
   rows: 50,
