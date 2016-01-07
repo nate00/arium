@@ -11,6 +11,8 @@ module Arium
         'farm' => :light_red,
         'village' => :gray,
         'water' => :blue,
+        'void' => :white,
+        'antivoid' => :light_gray,
       }
 
       # Config:

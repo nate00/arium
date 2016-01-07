@@ -12,6 +12,7 @@ creator = Arium::Creators::Village.with_config(
 evolvers = [
   Arium::Evolvers::Water.new,
   Arium::Evolvers::Nomad.new,
+  Arium::Evolvers::Void.new,
 ]
 
 world = Arium::World.with_config(
