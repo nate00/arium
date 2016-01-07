@@ -48,7 +48,7 @@ module Arium
 
         generation.transform_cells([epicenter]) do |cell|
           'antivoid'
-        end.transform_cells(epicenter.neighbors(distance: 3)) do |cell|
+        end.transform_cells(epicenter.euclidean_neighbors(distance: 3)) do |cell|
           'void'
         end
       end
