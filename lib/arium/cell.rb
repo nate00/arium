@@ -33,5 +33,13 @@ module Arium
     def point
       Point.new(row, col)
     end
+
+    def method_missing(method_name, *args, &block)
+      if (m = /value_is_(.+)\?/.match(method_name))
+        value == m[1]
+      else
+        super
+      end
+    end
   end
 end

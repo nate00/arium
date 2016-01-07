@@ -65,7 +65,7 @@ module Arium
       end
 
       def adjacent_farms(village)
-        village.nearby.select { |n| n.value == 'farm' }
+        village.nearby.select(&:value_is_farm?)
       end
 
       def resolver
@@ -83,15 +83,15 @@ module Arium
       end
 
       def quenched?(village)
-        village.nearby.any? { |n| n.value == 'water' }
+        village.nearby.any?(&:value_is_water?)
       end
 
       def starving?(village)
-        village.nearby.select { |n| n.value == 'farm' }.count < 2
+        village.nearby.select(&:value_is_farm?).count < 2
       end
 
       def villages(generation)
-        generation.each.select { |cell| cell.value == 'village' }
+        generation.each.select(&:value_is_village?)
       end
     end
   end
