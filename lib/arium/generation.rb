@@ -39,6 +39,31 @@ module Arium
       )
     end
 
+    def transform_cells(cells = nil, &block)
+      transform_all_cells = cells.nil?
+      points = cells.map(&:point) unless transform_all_cells
+
+      map_generation do |cell|
+        if transform_all_cells || points.include?(cell.point)
+          yield cell
+        else
+          cell.value
+        end
+      end
+    end
+
+    def transform
+      yield self
+    end
+
+    def maybe_transform(probability, &block)
+      if Kernel.rand < probability
+        transform(&block)
+      else
+        self
+      end
+    end
+
     def slice(r_start, r_length, c_start, c_length)
       r_start += row_count    if r_start < 0
       c_start += column_count if c_start < 0
@@ -50,6 +75,10 @@ module Arium
           end
         end
       )
+    end
+
+    def cells
+      to_a.flatten
     end
 
     def to_a
