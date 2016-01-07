@@ -13,11 +13,11 @@ module Arium
 
           if quenched? village
             if Kernel.rand < 0.10
-              new_village = village.neighbors.shuffle.first
+              new_village = village.nearby.shuffle.first
               agg.add(new_village.point, 'village')
-              new_village.neighbors.each { |n| agg.add(n.point, 'farm') }
+              new_village.nearby.each { |n| agg.add(n.point, 'farm') }
             end
-            village.neighbors.each do |neighbor|
+            village.nearby.each do |neighbor|
               agg.add(neighbor.point, 'farm')
             end
             agg.add(village.point, 'village')
@@ -50,7 +50,7 @@ module Arium
         agg.add(new_village, 'village')
 
         new_farm = Point.new(new_village.row + direction[0], new_village.col + direction[1])
-        generation[new_village].neighbors.each do |neighbor|
+        generation[new_village].nearby.each do |neighbor|
           if neighbor.manhattan_distance(new_farm) <= 1
             agg.add(neighbor.point, 'farm')
           end
@@ -65,7 +65,7 @@ module Arium
       end
 
       def adjacent_farms(village)
-        village.neighbors.select { |n| n.value == 'farm' }
+        village.nearby.select { |n| n.value == 'farm' }
       end
 
       def resolver
@@ -83,11 +83,11 @@ module Arium
       end
 
       def quenched?(village)
-        village.neighbors.any? { |n| n.value == 'water' }
+        village.nearby.any? { |n| n.value == 'water' }
       end
 
       def starving?(village)
-        village.neighbors.select { |n| n.value == 'farm' }.count < 2
+        village.nearby.select { |n| n.value == 'farm' }.count < 2
       end
 
       def villages(generation)

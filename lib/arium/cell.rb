@@ -10,11 +10,16 @@ module Arium
       @col = col
     end
 
-    def neighbors(distance: 1)
+    def nearby(distance: 1)
       @generation.slice(
         @row - distance, distance * 2 + 1,
         @col - distance, distance * 2 + 1,
       ).select { |n| n }
+    end
+
+    def neighbors(distance: 1)
+      nearby(distance: distance).
+        select { |c| c.point != self.point }
     end
 
     def inspect

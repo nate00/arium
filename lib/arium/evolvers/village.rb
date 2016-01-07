@@ -49,7 +49,6 @@ module Arium
         h = Hash[
           cell
             .neighbors
-            .select { |c, _r, _c| c && c != cell }
             .map { |c, _r, _c| c.value }
             .group_by { |value| value }
             .map { |cell_type, arr| [cell_type, arr.count] }
