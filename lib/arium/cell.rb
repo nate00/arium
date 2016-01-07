@@ -21,6 +21,17 @@ module Arium
       @col = col
     end
 
+    def euclidean_nearby(distance: 1.0)
+      @generation.cells.select do |cell|
+        euclidean_distance(cell) < distance + 0.00000001
+      end
+    end
+
+    def euclidean_neighbors(distance: 1.0)
+      euclidean_nearby(distance: distance).
+        select { |c| c.point != self.point }
+    end
+
     def nearby(distance: 1)
       @generation.slice(
         @row - distance, distance * 2 + 1,
@@ -37,6 +48,10 @@ module Arium
       "<Cell:#{value}>"
     end
 
+    def euclidean_distance(other)
+      safe_sqrt((row - other.row) ** 2 + (col - other.col) ** 2)
+    end
+
     def manhattan_distance(other)
       (row - other.row).abs + (col - other.col).abs
     end
@@ -50,6 +65,16 @@ module Arium
         value == m[1]
       else
         super
+      end
+    end
+
+    private
+
+    def safe_sqrt(num)
+      if num <= 0.0
+        0.0
+      else
+        Math.sqrt(num)
       end
     end
   end
