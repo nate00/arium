@@ -6,8 +6,12 @@ module Arium
       @row, @col = row, col
     end
 
+    def ==(other)
+      self.id == other.id
+    end
+
     def eql?(other)
-      id.eql?(other.id)
+      self == other
     end
 
     def hash
