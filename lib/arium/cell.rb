@@ -3,7 +3,18 @@ module Arium
     attr_accessor :value
     attr_accessor :row, :col
 
+    WHITELIST = %w[
+      plain
+      mountain
+      farm
+      village
+      water
+      void
+      antivoid
+    ]
+
     def initialize(value, generation, row, col)
+      raise "Invalid value: #{value}" unless WHITELIST.include?(value)
       self.value = value
       @generation = generation
       @row = row
@@ -35,7 +46,7 @@ module Arium
     end
 
     def method_missing(method_name, *args, &block)
-      if (m = /value_is_(.+)\?/.match(method_name))
+      if (m = /value_is_(.+)\?/.match(method_name)) && WHITELIST.include?(m[1])
         value == m[1]
       else
         super
