@@ -9,9 +9,9 @@ module Arium
     attr_reader :original
     attr_reader :resolver         # { |original_entity, values| new_entity }
 
-    def initialize(original, resolver)
+    def initialize(original, resolver = nil, &block)
       @original = original
-      @resolver = resolver
+      @resolver = resolver || block
     end
 
     def add(point, value)
