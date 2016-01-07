@@ -44,7 +44,7 @@ module Arium
 
       def unrecognized(cell)
         if config.whiny_unrecognized
-          raise RuntimeError, "Unrecognized: #{cell}"
+          raise RuntimeError, "Unrecognized: #{cell.inspect}"
         else
           :red
         end
