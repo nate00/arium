@@ -14,6 +14,16 @@ module Arium
         'water' => 'blue',
       }
 
+      # Clumpier cell values are more likely to have diagonally adjacent
+      # cells rendered contiguously.
+      CLUMPINESS = %w[
+        plain
+        farm
+        village
+        mountain
+        water
+      ]
+
       # Config:
       #   outfile
       #   pixels_per_cell
@@ -22,45 +32,40 @@ module Arium
       config.outfile = 'outfile.png'
 
       def render(infile)
-        colors =
-          read_generation(infile).map do |row|
-            row.map do |cell|
-              COLORS[cell] || 'red'
-            end
-          end
+        cells = read_generation(infile)
 
-        height = colors.size * unit
-        width = colors.first.size * unit
+        height = cells.size * unit
+        width = cells.first.size * unit
         with_image(width, height, config.outfile) do |image|
-          colors.map.with_index do |row, row_index|
-            row.map.with_index do |color, col_index|
-              northwest = quadrant_color(color,
+          cells.map.with_index do |row, row_index|
+            row.map.with_index do |cell, col_index|
+              northwest = quadrant_value(cell,
                 [
-                  colors[row_index - 1] && colors[row_index - 1][col_index - 1],
-                  colors[row_index - 1] && colors[row_index - 1][col_index],
-                  colors[row_index] && colors[row_index][col_index - 1],
-                ]
+                  cells[row_index - 1] && cells[row_index - 1][col_index],
+                  cells[row_index] && cells[row_index][col_index - 1],
+                ],
+                cells[row_index - 1] && cells[row_index - 1][col_index - 1],
               )
-              northeast = quadrant_color(color,
+              northeast = quadrant_value(cell,
                 [
-                  colors[row_index - 1] && colors[row_index - 1][col_index],
-                  colors[row_index - 1] && colors[row_index - 1][col_index + 1],
-                  colors[row_index] && colors[row_index][col_index + 1],
-                ]
+                  cells[row_index - 1] && cells[row_index - 1][col_index],
+                  cells[row_index] && cells[row_index][col_index + 1],
+                ],
+                cells[row_index - 1] && cells[row_index - 1][col_index + 1],
               )
-              southwest = quadrant_color(color,
+              southwest = quadrant_value(cell,
                 [
-                  colors[row_index] && colors[row_index][col_index - 1],
-                  colors[row_index + 1] && colors[row_index + 1][col_index - 1],
-                  colors[row_index + 1] && colors[row_index + 1][col_index],
-                ]
+                  cells[row_index] && cells[row_index][col_index - 1],
+                  cells[row_index + 1] && cells[row_index + 1][col_index],
+                ],
+                cells[row_index + 1] && cells[row_index + 1][col_index - 1],
               )
-              southeast = quadrant_color(color,
+              southeast = quadrant_value(cell,
                 [
-                  colors[row_index] && colors[row_index][col_index + 1],
-                  colors[row_index + 1] && colors[row_index + 1][col_index],
-                  colors[row_index + 1] && colors[row_index + 1][col_index + 1],
-                ]
+                  cells[row_index] && cells[row_index][col_index + 1],
+                  cells[row_index + 1] && cells[row_index + 1][col_index],
+                ],
+                cells[row_index + 1] && cells[row_index + 1][col_index + 1],
               )
 
               puts "#{row_index} #{col_index}"
@@ -69,7 +74,7 @@ module Arium
               paint_quadrant(image, southwest, row_index, col_index, :southwest)
               paint_quadrant(image, southeast, row_index, col_index, :southeast)
               puts "#{row_index} #{col_index} quad"
-              paint_circle(image, color, row_index, col_index)
+              paint_circle(image, cell, row_index, col_index)
               puts "#{row_index} #{col_index} circle"
             end
           end
@@ -78,13 +83,27 @@ module Arium
 
       private
 
-      def quadrant_color(color, neighbors)
+      def quadrant_value(cell, lateral_neighbors, diagonal_neighbor)
+        neighbors = lateral_neighbors + [diagonal_neighbor]
         if neighbors.any? { |n| n.nil? }
-          color
+          cell
         elsif neighbors.all? { |n| n == neighbors.first }
           neighbors.first
+        elsif (
+            # If both lateral neighbors match, then we should render them as a
+            # single clump.
+            (contiguous_candidate = lateral_neighbors.first) &&
+            lateral_neighbors.all? { |n| n == contiguous_candidate } && (
+              # There may be a clump conflict if this cell wants to clump with
+              # its diagonal neighbor, and the lateral cells want to clump
+              # together. In that case, whichever cells are "clumpier" win.
+              diagonal_neighbor != cell ||
+              clumpiness(contiguous_candidate) > clumpiness(cell)
+            )
+        )
+          contiguous_candidate
         else
-          color
+          cell
         end
       end
 
@@ -98,7 +117,7 @@ module Arium
         image.save(filename)
       end
 
-      def paint_quadrant(image, color, row, col, quadrant)
+      def paint_quadrant(image, cell, row, col, quadrant)
         west = col * unit
         east = west + unit / 2
         north = row * unit
@@ -114,14 +133,22 @@ module Arium
             [east, south]
           end
 
-        image.rect(left, top, left + unit / 2, top + unit / 2, ChunkyPNG::Color::TRANSPARENT, color)
+        image.rect(left, top, left + unit / 2, top + unit / 2, ChunkyPNG::Color::TRANSPARENT, color(cell))
       end
 
-      def paint_circle(image, color, row, col)
+      def paint_circle(image, cell, row, col)
         left = col * unit
         top = row * unit
         radius = unit / 2
-        image.circle(left + radius, top + radius, radius, ChunkyPNG::Color::TRANSPARENT, color)
+        image.circle(left + radius, top + radius, radius, ChunkyPNG::Color::TRANSPARENT, color(cell))
+      end
+
+      def clumpiness(cell)
+        CLUMPINESS.index(cell)
+      end
+
+      def color(cell)
+        COLORS.fetch(cell, 'red')
       end
     end
   end
