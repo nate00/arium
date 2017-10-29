@@ -1,9 +1,7 @@
 module Arium
   module Evolvers
     class Void
-      include EvolverUtils
-
-      def evolve_generation(previous_gen)
+      def evolve(previous_gen)
         previous_gen.transform do |gen|
           advance_void(gen)
         end.transform do |gen|

@@ -21,7 +21,7 @@ module Arium
     def next_generation(infile, outfile)
       next_gen = 
         evolvers.inject(read_generation(infile)) do |prev, evolver|
-          evolver.evolve(prev)
+          evolver.evolve(Generation.wrap(prev)).unwrap
         end
       write_generation(outfile, next_gen)
       outfile
