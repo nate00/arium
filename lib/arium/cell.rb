@@ -21,6 +21,13 @@ module Arium
       @col = col
     end
 
+    def neighbor(direction)
+      @generation.at(
+        @row + direction.row_delta,
+        @col + direction.col_delta
+      )
+    end
+
     def euclidean_nearby(distance: 1.0)
       @generation.cells.select do |cell|
         euclidean_distance(cell) < distance + 0.00000001
@@ -37,6 +44,12 @@ module Arium
         @row - distance, distance * 2 + 1,
         @col - distance, distance * 2 + 1,
       ).select { |n| n }
+    end
+
+    def manhattan_nearby(distance: 1)
+      @generation.cells.select do |other|
+        manhattan_distance(other) <= distance
+      end
     end
 
     def neighbors(distance: 1)

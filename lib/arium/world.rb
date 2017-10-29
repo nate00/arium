@@ -14,7 +14,7 @@ module Arium
 
     def first_generation(outfile)
       generation = creator.create
-      write_generation(outfile, generation)
+      write_generation(outfile, generation.unwrap)
       outfile
     end
 
