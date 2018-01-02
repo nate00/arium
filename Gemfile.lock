@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     arium (0.0.0)
-      activesupport (~> 4.2.0)
+      activesupport (~> 4.2.2)
       chunky_png (~> 1.3.3)
       colorize (~> 0.7.5)
       whenever (~> 0.9.4)
@@ -10,7 +10,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (4.2.0)
+    activesupport (4.2.6)
       i18n (~> 0.7)
       json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
@@ -20,16 +20,16 @@ GEM
     chunky_png (1.3.4)
     coderay (1.1.0)
     colorize (0.7.5)
-    i18n (0.7.0)
-    json (1.8.2)
+    i18n (0.8.0)
+    json (1.8.3)
     method_source (0.8.2)
-    minitest (5.5.1)
+    minitest (5.10.1)
     pry (0.10.1)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
     slop (3.6.0)
-    thread_safe (0.3.4)
+    thread_safe (0.3.5)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
     whenever (0.9.4)
@@ -41,3 +41,6 @@ PLATFORMS
 DEPENDENCIES
   arium!
   pry (~> 0.10.1)
+
+BUNDLED WITH
+   1.11.0
