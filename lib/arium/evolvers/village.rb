@@ -4,9 +4,9 @@ module Arium
       def evolve(previous_gen)
         previous_gen.map_generation do |cell, r, c|
           case cell.occupant
-            when 'plain' then evolve_plain(cell)
-            when 'farm' then evolve_farm(cell)
-            when 'village' then evolve_village(cell)
+            when Occ.plain then evolve_plain(cell)
+            when Occ.farm then evolve_farm(cell)
+            when Occ.village then evolve_village(cell)
             else cell.occupant
           end
         end
@@ -16,30 +16,30 @@ module Arium
 
       def evolve_plain(cell)
         counts = neighbor_count(cell)
-        if counts['village'] >= 1
-          'farm'
+        if counts[Occ.village] >= 1
+          Occ.farm
         else
-          'plain'
+          Occ.plain
         end
       end
 
       def evolve_farm(cell)
         counts = neighbor_count(cell)
-        if counts['village'] >= 2
-          'village'
-        elsif counts['village'] >= 1 || counts['farm'] >= 3
-          'farm'
+        if counts[Occ.village] >= 2
+          Occ.village
+        elsif counts[Occ.village] >= 1 || counts[Occ.farm] >= 3
+          Occ.farm
         else
-          'plain'
+          Occ.plain
         end
       end
 
       def evolve_village(cell)
         counts = neighbor_count(cell)
-        if counts['farm'] < 1
-          'plain'
+        if counts[Occ.farm] < 1
+          Occ.plain
         else
-          'village'
+          Occ.village
         end
       end
 

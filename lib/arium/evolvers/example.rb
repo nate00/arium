@@ -2,7 +2,7 @@ module Arium
   module Evolvers
     class Example
       def evolve(previous)
-        previous.cells.sample.occupant = 'mountain'
+        previous.cells.sample.occupant = Occ.mountain
         previous
       end
     end

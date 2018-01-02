@@ -38,7 +38,11 @@ module Arium
       self.class.wrap(
         @array.map do |row|
           row.map do |cell|
-            yield cell
+            # TODO: Rework +wrap+ to remove the tension between the
+            # deserialization case (when we want occupants as Strings) and this
+            # case, where we're using it merely as a convenience (and want
+            # occupants as Occupants). Then remove this instance_variable_get.
+            yield(cell).instance_variable_get(:@string)
           end
         end
       )
@@ -90,10 +94,11 @@ module Arium
       @array
     end
 
+    # TODO: Pick a consistent vocabulary: "unwrap" or "serialize."
     def unwrap
       @array.map do |row|
         row.map do |cell|
-          cell.occupant
+          cell.occupant.serialize
         end
       end
     end
@@ -114,8 +119,8 @@ module Arium
 
     def wrap(raw_array)
       raw_array.map.with_index do |row, r|
-        row.map.with_index do |occupant, c|
-          Cell.new(occupant, self, r, c)
+        row.map.with_index do |occupant_str, c|
+          Cell.new(Occupant.new(occupant_str), self, r, c)
         end
       end
     end

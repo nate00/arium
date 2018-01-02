@@ -12,13 +12,13 @@ module Arium
           if quenched? village
             if Kernel.rand < 0.10
               new_village = village.nearby.shuffle.first
-              agg.add(new_village.point, 'village')
-              new_village.nearby.each { |n| agg.add(n.point, 'farm') }
+              agg.add(new_village.point, Occ.village)
+              new_village.nearby.each { |n| agg.add(n.point, Occ.farm) }
             end
             village.nearby.each do |neighbor|
-              agg.add(neighbor.point, 'farm')
+              agg.add(neighbor.point, Occ.farm)
             end
-            agg.add(village.point, 'village')
+            agg.add(village.point, Occ.village)
           else
             migrate!(village, previous_gen, agg)
           end
@@ -45,12 +45,12 @@ module Arium
       def migrate!(village, generation, agg)
         direction = average_offset(village, adjacent_farms(village))
         new_village = Point.new(village.row + direction[0], village.col + direction[1])
-        agg.add(new_village, 'village')
+        agg.add(new_village, Occ.village)
 
         new_farm = Point.new(new_village.row + direction[0], new_village.col + direction[1])
         generation[new_village].nearby.each do |neighbor|
           if neighbor.manhattan_distance(new_farm) <= 1
-            agg.add(neighbor.point, 'farm')
+            agg.add(neighbor.point, Occ.farm)
           end
         end
       end
@@ -68,12 +68,12 @@ module Arium
 
       def resolver
         proc do |occupant, forces|
-          if forces.include?('village') && ['plain', 'farm', 'village'].include?(occupant)
-            'village'
-          elsif forces.include?('farm') && ['plain', 'farm'].include?(occupant)
-            'farm'
-          elsif ['farm', 'village'].include?(occupant)
-            'plain'
+          if forces.include?(Occ.village) && [Occ.plain, Occ.farm, Occ.village].include?(occupant)
+            Occ.village
+          elsif forces.include?(Occ.farm) && [Occ.plain, Occ.farm].include?(occupant)
+            Occ.farm
+          elsif [Occ.farm, Occ.village].include?(occupant)
+            Occ.plain
           else
             occupant
           end

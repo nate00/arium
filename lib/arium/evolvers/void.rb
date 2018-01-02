@@ -17,7 +17,7 @@ module Arium
         old_antivoid = previous_generation.select(&:occupant_is_antivoid?)
 
         generation.transform_cells(old_antivoid) do |cell|
-          'plain'
+          Occ.plain
         end
       end
 
@@ -27,17 +27,17 @@ module Arium
           select { |cell| cell.neighbors.any?(&:occupant_is_antivoid?) }
 
         generation.transform_cells(void_neighboring_antivoid) do |cell|
-          'antivoid'
+          Occ.antivoid
         end
       end
 
       def advance_void(generation)
         nonvoid_neighboring_void = generation.
-          reject { |cell| ['void', 'antivoid'].include?(cell.occupant) }.
+          reject { |cell| [Occ.void, Occ.antivoid].include?(cell.occupant) }.
           select { |cell| cell.neighbors.any?(&:occupant_is_void?) }
 
         generation.transform_cells(nonvoid_neighboring_void) do |cell|
-          'void'
+          Occ.void
         end
       end
 
@@ -45,9 +45,9 @@ module Arium
         epicenter = generation.cells.sample
 
         generation.transform_cells([epicenter]) do |cell|
-          'antivoid'
+          Occ.antivoid
         end.transform_cells(epicenter.euclidean_neighbors(distance: 3)) do |cell|
-          'void'
+          Occ.void
         end
       end
     end

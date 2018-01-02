@@ -27,17 +27,17 @@ module Arium
 
         nucleus = generation.cells.sample
 
-        if nucleus.occupant == 'water'
+        if nucleus.occupant.water?
           return add_village!(generation, attempts: attempts + 1)
         end
 
-        nucleus.occupant = 'village'
+        nucleus.occupant = Occ.village
         [
           nucleus.neighbor(Direction.southeast),
           nucleus.neighbor(Direction.south),
           nucleus.neighbor(Direction.southwest),
         ].compact.each do |neighbor|
-          neighbor.occupant = 'farm'
+          neighbor.occupant = Occ.farm
         end
       end
 
@@ -45,7 +45,7 @@ module Arium
         center = generation.cells.sample
 
         center.manhattan_nearby(distance: 10).each do |nearby|
-          nearby.occupant = 'water'
+          nearby.occupant = Occ.water
         end
       end
     end

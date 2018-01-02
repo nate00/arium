@@ -3,18 +3,7 @@ module Arium
     attr_accessor :occupant
     attr_accessor :row, :col
 
-    WHITELIST = %w[
-      plain
-      mountain
-      farm
-      village
-      water
-      void
-      antivoid
-    ]
-
     def initialize(occupant, generation, row, col)
-      raise "Invalid occupant: #{occupant}" unless WHITELIST.include?(occupant)
       self.occupant = occupant
       @generation = generation
       @row = row
@@ -58,7 +47,7 @@ module Arium
     end
 
     def inspect
-      "<Cell:#{occupant}>"
+      "<Cell:#{occupant.inspect}>"
     end
 
     def euclidean_distance(other)
@@ -73,9 +62,16 @@ module Arium
       Point.new(row, col)
     end
 
+    def occupant=(occupant)
+      unless occupant.is_a?(Occupant)
+        raise "Argument to occupant= must be an Occupant, instead got #{occupant.inspect}"
+      end
+      @occupant = occupant
+    end
+
     def method_missing(method_name, *args, &block)
-      if (m = /occupant_is_(.+)\?/.match(method_name)) && WHITELIST.include?(m[1])
-        occupant == m[1]
+      if (m = /occupant_is_(.+)\?/.match(method_name)) && Occupant::VALID_STRINGS.include?(m[1])
+        occupant.public_send(:"#{m[1]}?")
       else
         super
       end
