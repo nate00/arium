@@ -1,6 +1,6 @@
 module Arium
   class Cell
-    attr_accessor :value
+    attr_accessor :occupant
     attr_accessor :row, :col
 
     WHITELIST = %w[
@@ -13,9 +13,9 @@ module Arium
       antivoid
     ]
 
-    def initialize(value, generation, row, col)
-      raise "Invalid value: #{value}" unless WHITELIST.include?(value)
-      self.value = value
+    def initialize(occupant, generation, row, col)
+      raise "Invalid occupant: #{occupant}" unless WHITELIST.include?(occupant)
+      self.occupant = occupant
       @generation = generation
       @row = row
       @col = col
@@ -58,7 +58,7 @@ module Arium
     end
 
     def inspect
-      "<Cell:#{value}>"
+      "<Cell:#{occupant}>"
     end
 
     def euclidean_distance(other)
@@ -74,8 +74,8 @@ module Arium
     end
 
     def method_missing(method_name, *args, &block)
-      if (m = /value_is_(.+)\?/.match(method_name)) && WHITELIST.include?(m[1])
-        value == m[1]
+      if (m = /occupant_is_(.+)\?/.match(method_name)) && WHITELIST.include?(m[1])
+        occupant == m[1]
       else
         super
       end

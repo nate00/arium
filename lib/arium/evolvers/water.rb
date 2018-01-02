@@ -15,16 +15,16 @@ module Arium
 
       def become_water?(cell)
         probability = 0
-        probability += 0.98 if cell.value == 'water'
-        probability += 0.02 / 9 * cell.nearby.select { |n, _r, _c| n && (n.value == 'water') }.count
+        probability += 0.98 if cell.occupant == 'water'
+        probability += 0.02 / 9 * cell.nearby.select { |n, _r, _c| n && (n.occupant == 'water') }.count
         Kernel.rand < probability
       end
 
       def non_water_successor(cell)
-        if cell.value == 'water'
+        if cell.occupant == 'water'
           'plain'
         else
-          cell.value
+          cell.occupant
         end
       end
     end

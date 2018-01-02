@@ -10,8 +10,8 @@ module Arium
       new(array, wrap: true)
     end
 
-    def self.create(rows, columns, entity_type)
-      array = Array.new(rows) { Array.new(columns, entity_type) }
+    def self.create(rows, columns, occupant)
+      array = Array.new(rows) { Array.new(columns, occupant) }
       self.wrap(array)
     end
 
@@ -52,7 +52,7 @@ module Arium
         if transform_all_cells || points.include?(cell.point)
           yield cell
         else
-          cell.value
+          cell.occupant
         end
       end
     end
@@ -93,7 +93,7 @@ module Arium
     def unwrap
       @array.map do |row|
         row.map do |cell|
-          cell.value
+          cell.occupant
         end
       end
     end
@@ -114,8 +114,8 @@ module Arium
 
     def wrap(raw_array)
       raw_array.map.with_index do |row, r|
-        row.map.with_index do |value, c|
-          Cell.new(value, self, r, c)
+        row.map.with_index do |occupant, c|
+          Cell.new(occupant, self, r, c)
         end
       end
     end

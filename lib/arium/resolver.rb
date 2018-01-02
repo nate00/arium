@@ -7,20 +7,20 @@ require 'pry'
 module Arium
   class Resolver
     attr_reader :original
-    attr_reader :resolver         # { |original_entity, values| new_entity }
+    attr_reader :resolver         # { |original_occupant, occupants| new_occupant }
 
     def initialize(original, resolver = nil, &block)
       @original = original
       @resolver = resolver || block
     end
 
-    def add(point, value)
-      conflicts[point] << value
+    def add(point, occupant)
+      conflicts[point] << occupant
     end
 
     def to_generation
       @original.map_generation do |cell|
-        @resolver.call(cell.value, conflicts[cell.point])
+        @resolver.call(cell.occupant, conflicts[cell.point])
       end
     end
 

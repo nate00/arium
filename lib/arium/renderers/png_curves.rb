@@ -14,7 +14,7 @@ module Arium
         'water' => 'blue',
       }
 
-      # Clumpier cell values are more likely to have diagonally adjacent
+      # Clumpier cell occupants are more likely to have diagonally adjacent
       # cells rendered contiguously.
       CLUMPINESS = %w[
         plain
@@ -39,28 +39,28 @@ module Arium
         with_image(width, height, config.outfile) do |image|
           cells.map.with_index do |row, row_index|
             row.map.with_index do |cell, col_index|
-              northwest = quadrant_value(cell,
+              northwest = quadrant_occupant(cell,
                 [
                   cells[row_index - 1] && cells[row_index - 1][col_index],
                   cells[row_index] && cells[row_index][col_index - 1],
                 ],
                 cells[row_index - 1] && cells[row_index - 1][col_index - 1],
               )
-              northeast = quadrant_value(cell,
+              northeast = quadrant_occupant(cell,
                 [
                   cells[row_index - 1] && cells[row_index - 1][col_index],
                   cells[row_index] && cells[row_index][col_index + 1],
                 ],
                 cells[row_index - 1] && cells[row_index - 1][col_index + 1],
               )
-              southwest = quadrant_value(cell,
+              southwest = quadrant_occupant(cell,
                 [
                   cells[row_index] && cells[row_index][col_index - 1],
                   cells[row_index + 1] && cells[row_index + 1][col_index],
                 ],
                 cells[row_index + 1] && cells[row_index + 1][col_index - 1],
               )
-              southeast = quadrant_value(cell,
+              southeast = quadrant_occupant(cell,
                 [
                   cells[row_index] && cells[row_index][col_index + 1],
                   cells[row_index + 1] && cells[row_index + 1][col_index],
@@ -83,7 +83,7 @@ module Arium
 
       private
 
-      def quadrant_value(cell, lateral_neighbors, diagonal_neighbor)
+      def quadrant_occupant(cell, lateral_neighbors, diagonal_neighbor)
         neighbors = lateral_neighbors + [diagonal_neighbor]
         if neighbors.any? { |n| n.nil? }
           cell

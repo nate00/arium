@@ -3,11 +3,11 @@ module Arium
     class Village
       def evolve(previous_gen)
         previous_gen.map_generation do |cell, r, c|
-          case cell.value
+          case cell.occupant
             when 'plain' then evolve_plain(cell)
             when 'farm' then evolve_farm(cell)
             when 'village' then evolve_village(cell)
-            else cell.value
+            else cell.occupant
           end
         end
       end
@@ -47,9 +47,9 @@ module Arium
         h = Hash[
           cell
             .neighbors
-            .map { |c, _r, _c| c.value }
-            .group_by { |value| value }
-            .map { |cell_type, arr| [cell_type, arr.count] }
+            .map { |c, _r, _c| c.occupant }
+            .group_by { |occupant| occupant }
+            .map { |occupant, arr| [occupant, arr.count] }
         ]
         h.default_proc = proc { 0 }
         h

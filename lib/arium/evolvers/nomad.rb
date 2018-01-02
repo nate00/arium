@@ -63,33 +63,33 @@ module Arium
       end
 
       def adjacent_farms(village)
-        village.nearby.select(&:value_is_farm?)
+        village.nearby.select(&:occupant_is_farm?)
       end
 
       def resolver
-        proc do |entity, forces|
-          if forces.include?('village') && ['plain', 'farm', 'village'].include?(entity)
+        proc do |occupant, forces|
+          if forces.include?('village') && ['plain', 'farm', 'village'].include?(occupant)
             'village'
-          elsif forces.include?('farm') && ['plain', 'farm'].include?(entity)
+          elsif forces.include?('farm') && ['plain', 'farm'].include?(occupant)
             'farm'
-          elsif ['farm', 'village'].include?(entity)
+          elsif ['farm', 'village'].include?(occupant)
             'plain'
           else
-            entity
+            occupant
           end
         end
       end
 
       def quenched?(village)
-        village.nearby.any?(&:value_is_water?)
+        village.nearby.any?(&:occupant_is_water?)
       end
 
       def starving?(village)
-        village.nearby.select(&:value_is_farm?).count < 2
+        village.nearby.select(&:occupant_is_farm?).count < 2
       end
 
       def villages(generation)
-        generation.each.select(&:value_is_village?)
+        generation.each.select(&:occupant_is_village?)
       end
     end
   end

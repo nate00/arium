@@ -14,7 +14,7 @@ module Arium
       end
 
       def fill_old_antivoid(generation, previous_generation)
-        old_antivoid = previous_generation.select(&:value_is_antivoid?)
+        old_antivoid = previous_generation.select(&:occupant_is_antivoid?)
 
         generation.transform_cells(old_antivoid) do |cell|
           'plain'
@@ -23,8 +23,8 @@ module Arium
 
       def advance_antivoid(generation)
         void_neighboring_antivoid = generation.
-          select(&:value_is_void?).
-          select { |cell| cell.neighbors.any?(&:value_is_antivoid?) }
+          select(&:occupant_is_void?).
+          select { |cell| cell.neighbors.any?(&:occupant_is_antivoid?) }
 
         generation.transform_cells(void_neighboring_antivoid) do |cell|
           'antivoid'
@@ -33,8 +33,8 @@ module Arium
 
       def advance_void(generation)
         nonvoid_neighboring_void = generation.
-          reject { |cell| ['void', 'antivoid'].include?(cell.value) }.
-          select { |cell| cell.neighbors.any?(&:value_is_void?) }
+          reject { |cell| ['void', 'antivoid'].include?(cell.occupant) }.
+          select { |cell| cell.neighbors.any?(&:occupant_is_void?) }
 
         generation.transform_cells(nonvoid_neighboring_void) do |cell|
           'void'
