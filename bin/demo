@@ -3,8 +3,8 @@
 require_relative 'bootstrap'
 
 creator = Arium::Creators::Village.with_config(
-  rows: 50,
-  columns: 200,
+  rows: 40,
+  columns: 100,
   villages: 10,
   lakes: 3
 )
@@ -12,6 +12,7 @@ creator = Arium::Creators::Village.with_config(
 evolvers = [
   Arium::Evolvers::Water.new,
   Arium::Evolvers::Nomad.new,
+  Arium::Evolvers::Example.new,
   Arium::Evolvers::Void.new,
 ]
 
@@ -30,5 +31,6 @@ FileUtils.mkdir_p('demo_generations')
 i = 0
 loop do
   renderer.render(world.generation(i))
+  puts
   i += 1
 end

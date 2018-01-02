@@ -9,43 +9,43 @@ module Arium
       config.lakes = 1
 
       def create
-        Array.new(config.rows) { Array.new(config.columns, 'plain') }.tap do |grid|
+        Generation.create(config.rows, config.columns, 'plain').tap do |generation|
           config.lakes.times do
-            add_lake!(grid)
+            add_lake!(generation)
           end
 
           config.villages.times do
-            add_village!(grid)
+            add_village!(generation)
           end
         end
       end
 
       private
 
-      def add_village!(grid, attempts: 0)
+      def add_village!(generation, attempts: 0)
         return if attempts == 10
 
-        nucleus_r = Kernel.rand(config.rows - 1)
-        nucleus_c = Kernel.rand(config.columns - 1)
+        nucleus = generation.cells.sample
 
-        return add_village!(grid, attempts: attempts + 1) if grid[nucleus_r][nucleus_c] == 'water'
+        if nucleus.value == 'water'
+          return add_village!(generation, attempts: attempts + 1)
+        end
 
-        grid[nucleus_r    ][nucleus_c    ] = 'village'
-        grid[nucleus_r + 1][nucleus_c + 1] = 'farm'
-        grid[nucleus_r + 1][nucleus_c    ] = 'farm'
-        grid[nucleus_r + 1][nucleus_c - 1] = 'farm'
+        nucleus.value = 'village'
+        [
+          nucleus.neighbor(Direction.southeast),
+          nucleus.neighbor(Direction.south),
+          nucleus.neighbor(Direction.southwest),
+        ].compact.each do |neighbor|
+          neighbor.value = 'farm'
+        end
       end
 
-      def add_lake!(grid)
-        center_r = Kernel.rand(config.rows - 1)
-        center_c = Kernel.rand(config.columns - 1)
+      def add_lake!(generation)
+        center = generation.cells.sample
 
-        grid.each.with_index do |row, r|
-          row.each.with_index do |cell, c|
-            if (r - center_r).abs + (c - center_c).abs <= 10
-              grid[r][c] = 'water'
-            end
-          end
+        center.manhattan_nearby(distance: 10).each do |nearby|
+          nearby.value = 'water'
         end
       end
     end

@@ -14,14 +14,14 @@ module Arium
 
     def first_generation(outfile)
       generation = creator.create
-      write_generation(outfile, generation)
+      write_generation(outfile, generation.unwrap)
       outfile
     end
 
     def next_generation(infile, outfile)
       next_gen = 
         evolvers.inject(read_generation(infile)) do |prev, evolver|
-          evolver.evolve(prev)
+          evolver.evolve(Generation.wrap(prev)).unwrap
         end
       write_generation(outfile, next_gen)
       outfile

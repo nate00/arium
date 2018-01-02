@@ -10,6 +10,11 @@ module Arium
       new(array, wrap: true)
     end
 
+    def self.create(rows, columns, entity_type)
+      array = Array.new(rows) { Array.new(columns, entity_type) }
+      self.wrap(array)
+    end
+
     def at(r, c)
       @array[r] && @array[r][c]
     end

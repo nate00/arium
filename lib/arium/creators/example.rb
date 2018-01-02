@@ -11,7 +11,7 @@ module Arium
       config.columns = 100
 
       def create
-        config.columns.times.map { [:plain] * config.rows }
+        Generation.create(config.rows, config.columns, 'plain')
       end
     end
   end

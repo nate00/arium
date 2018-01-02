@@ -1,9 +1,7 @@
 module Arium
   module Evolvers
     class Nomad
-      include EvolverUtils
-
-      def evolve_generation(previous_gen)
+      def evolve(previous_gen)
         agg = Resolver.new(previous_gen, resolver)
 
         villages(previous_gen).each do |village|

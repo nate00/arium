@@ -1,9 +1,7 @@
 module Arium
   module Evolvers
     class Village
-      include EvolverUtils
-
-      def evolve_generation(previous_gen)
+      def evolve(previous_gen)
         previous_gen.map_generation do |cell, r, c|
           case cell.value
             when 'plain' then evolve_plain(cell)

@@ -1,9 +1,7 @@
 module Arium
   module Evolvers
     class Water
-      include EvolverUtils
-
-      def evolve_generation(previous)
+      def evolve(previous)
         previous.map_generation do |cell, _r, _c|
           if become_water?(cell)
             'water'
