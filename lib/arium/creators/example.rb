@@ -11,7 +11,7 @@ module Arium
       config.columns = 100
 
       def create
-        Generation.create(config.rows, config.columns, 'plain')
+        Generation.create(config.rows, config.columns, 'plain', 12)
       end
     end
   end

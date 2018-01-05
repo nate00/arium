@@ -32,7 +32,11 @@ module Arium
       config.outfile = 'outfile.png'
 
       def render(infile)
-        cells = read_generation(infile)
+        cells = read_generation(infile).map do |rows|
+          rows.map do |cell|
+            cell[:occupant]
+          end
+        end
 
         height = cells.size * unit
         width = cells.first.size * unit

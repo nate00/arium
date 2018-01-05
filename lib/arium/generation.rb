@@ -10,8 +10,10 @@ module Arium
       new(array, wrap: true)
     end
 
-    def self.create(rows, columns, occupant)
-      array = Array.new(rows) { Array.new(columns, occupant) }
+    def self.create(rows, columns, occupant, altitude)
+      array = Array.new(rows) do
+        Array.new(columns, { occupant: occupant, altitude: altitude })
+      end
       self.wrap(array)
     end
 
@@ -38,11 +40,14 @@ module Arium
       self.class.wrap(
         @array.map do |row|
           row.map do |cell|
-            # TODO: Rework +wrap+ to remove the tension between the
-            # deserialization case (when we want occupants as Strings) and this
-            # case, where we're using it merely as a convenience (and want
-            # occupants as Occupants). Then remove this instance_variable_get.
-            yield(cell).instance_variable_get(:@string)
+            {
+              # TODO: Rework +wrap+ to remove the tension between the
+              # deserialization case (when we want occupants as Strings) and this
+              # case, where we're using it merely as a convenience (and want
+              # occupants as Occupants). Then remove this instance_variable_get.
+              occupant: yield(cell).instance_variable_get(:@string),
+              altitude: cell.altitude,
+            }
           end
         end
       )
@@ -98,7 +103,7 @@ module Arium
     def unwrap
       @array.map do |row|
         row.map do |cell|
-          cell.occupant.serialize
+          { occupant: cell.occupant.serialize, altitude: cell.altitude }
         end
       end
     end
@@ -119,8 +124,8 @@ module Arium
 
     def wrap(raw_array)
       raw_array.map.with_index do |row, r|
-        row.map.with_index do |occupant_str, c|
-          Cell.new(Occupant.new(occupant_str), self, r, c)
+        row.map.with_index do |hash, c|
+          Cell.new(Occupant.new(hash[:occupant]), hash[:altitude], self, r, c)
         end
       end
     end

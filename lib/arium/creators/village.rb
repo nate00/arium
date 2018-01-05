@@ -9,7 +9,7 @@ module Arium
       config.lakes = 1
 
       def create
-        Generation.create(config.rows, config.columns, 'plain').tap do |generation|
+        Generation.create(config.rows, config.columns, 'plain', 10).tap do |generation|
           config.lakes.times do
             add_lake!(generation)
           end

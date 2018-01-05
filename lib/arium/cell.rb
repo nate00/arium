@@ -1,10 +1,11 @@
 module Arium
   class Cell
-    attr_accessor :occupant
+    attr_accessor :occupant, :altitude
     attr_accessor :row, :col
 
-    def initialize(occupant, generation, row, col)
+    def initialize(occupant, altitude, generation, row, col)
       self.occupant = occupant
+      self.altitude = altitude
       @generation = generation
       @row = row
       @col = col
@@ -67,6 +68,13 @@ module Arium
         raise "Argument to occupant= must be an Occupant, instead got #{occupant.inspect}"
       end
       @occupant = occupant
+    end
+
+    def altitude=(altitude)
+      unless (0..100).include?(altitude)
+        raise "Argument to altitude= must be a number between 0 and 100, instead got #{occupant.inspect}"
+      end
+      @altitude = altitude
     end
 
     def method_missing(method_name, *args, &block)

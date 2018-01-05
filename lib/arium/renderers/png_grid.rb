@@ -25,7 +25,7 @@ module Arium
         colors =
           read_generation(infile).map do |row|
             row.map do |cell|
-              COLORS[cell] || 'red'
+              COLORS[cell[:occupant]] || 'red'
             end
           end
 

@@ -1,7 +1,7 @@
 module Arium
   module Persistence
     def read_generation(filename)
-      JSON.parse(File.read(filename))
+      JSON.parse(File.read(filename), symbolize_names: true)
     end
 
     def write_generation(filename, generation)
