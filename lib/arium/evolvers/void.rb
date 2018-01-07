@@ -13,40 +13,40 @@ module Arium
         end
       end
 
-      def fill_old_antivoid(generation, previous_generation)
-        old_antivoid = previous_generation.select(&:occupant_is_antivoid?)
+      def fill_old_antivoid(gen, previous_gen)
+        old_antivoid = previous_gen.select(&:occupant_is_antivoid?)
 
-        generation.transform_cells(old_antivoid) do |cell|
+        gen.transform_cells(old_antivoid) do |cell|
           Occ.plain
         end
       end
 
-      def advance_antivoid(generation)
-        void_neighboring_antivoid = generation.
+      def advance_antivoid(gen)
+        void_neighboring_antivoid = gen.
           select(&:occupant_is_void?).
-          select { |cell| cell.neighbors.any?(&:occupant_is_antivoid?) }
+          select { |cell| gen.neighbors(cell).any?(&:occupant_is_antivoid?) }
 
-        generation.transform_cells(void_neighboring_antivoid) do |cell|
+        gen.transform_cells(void_neighboring_antivoid) do |cell|
           Occ.antivoid
         end
       end
 
-      def advance_void(generation)
-        nonvoid_neighboring_void = generation.
+      def advance_void(gen)
+        nonvoid_neighboring_void = gen.
           reject { |cell| [Occ.void, Occ.antivoid].include?(cell.occupant) }.
-          select { |cell| cell.neighbors.any?(&:occupant_is_void?) }
+          select { |cell| gen.neighbors(cell).any?(&:occupant_is_void?) }
 
-        generation.transform_cells(nonvoid_neighboring_void) do |cell|
+        gen.transform_cells(nonvoid_neighboring_void) do |cell|
           Occ.void
         end
       end
 
-      def create_void(generation)
-        epicenter = generation.cells.sample
+      def create_void(gen)
+        epicenter = gen.cells.sample
 
-        generation.transform_cells([epicenter]) do |cell|
+        gen.transform_cells([epicenter]) do |cell|
           Occ.antivoid
-        end.transform_cells(epicenter.euclidean_neighbors(distance: 3)) do |cell|
+        end.transform_cells(gen.euclidean_neighbors(epicenter, distance: 3)) do |cell|
           Occ.void
         end
       end

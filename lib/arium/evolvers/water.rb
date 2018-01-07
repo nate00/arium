@@ -3,7 +3,7 @@ module Arium
     class Water
       def evolve(previous)
         previous.map_generation do |cell, _r, _c|
-          if become_water?(cell)
+          if become_water?(previous, cell)
             Occ.water
           else
             non_water_successor(cell)
@@ -13,10 +13,10 @@ module Arium
 
       private
 
-      def become_water?(cell)
+      def become_water?(gen, cell)
         probability = 0
         probability += 0.98 if cell.occupant.water?
-        probability += 0.02 / 9 * cell.nearby.select { |n, _r, _c| n && n.occupant.water? }.count
+        probability += 0.02 / 9 * gen.nearby(cell).select { |n, _r, _c| n && n.occupant.water? }.count
         Kernel.rand < probability
       end
 

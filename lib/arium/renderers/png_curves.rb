@@ -35,39 +35,39 @@ module Arium
         render(Generation.wrap(read_generation(infile)))
       end
 
-      def render(generation)
-        height = generation.row_count * unit
-        width = generation.column_count * unit
+      def render(gen)
+        height = gen.row_count * unit
+        width = gen.column_count * unit
         with_image(width, height, config.outfile) do |image|
-          generation.to_a.each do |row|
+          gen.to_a.each do |row|
             row.each do |cell|
               northwest = quadrant_occupant(cell.occupant,
                 [
-                  cell.neighbor(Direction.north)&.occupant,
-                  cell.neighbor(Direction.west)&.occupant,
+                  gen.neighbor(cell, Direction.north)&.occupant,
+                  gen.neighbor(cell, Direction.west)&.occupant,
                 ],
-                cell.neighbor(Direction.northwest)&.occupant,
+                gen.neighbor(cell, Direction.northwest)&.occupant,
               )
               northeast = quadrant_occupant(cell.occupant,
                 [
-                  cell.neighbor(Direction.north)&.occupant,
-                  cell.neighbor(Direction.east)&.occupant,
+                  gen.neighbor(cell, Direction.north)&.occupant,
+                  gen.neighbor(cell, Direction.east)&.occupant,
                 ],
-                cell.neighbor(Direction.northeast)&.occupant,
+                gen.neighbor(cell, Direction.northeast)&.occupant,
               )
               southwest = quadrant_occupant(cell.occupant,
                 [
-                  cell.neighbor(Direction.south)&.occupant,
-                  cell.neighbor(Direction.west)&.occupant,
+                  gen.neighbor(cell, Direction.south)&.occupant,
+                  gen.neighbor(cell, Direction.west)&.occupant,
                 ],
-                cell.neighbor(Direction.southwest)&.occupant,
+                gen.neighbor(cell, Direction.southwest)&.occupant,
               )
               southeast = quadrant_occupant(cell.occupant,
                 [
-                  cell.neighbor(Direction.south)&.occupant,
-                  cell.neighbor(Direction.east)&.occupant,
+                  gen.neighbor(cell, Direction.south)&.occupant,
+                  gen.neighbor(cell, Direction.east)&.occupant,
                 ],
-                cell.neighbor(Direction.southeast)&.occupant,
+                gen.neighbor(cell, Direction.southeast)&.occupant,
               )
 
               paint_quadrant(image, northwest, cell.row, cell.col, :northwest)

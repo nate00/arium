@@ -33,9 +33,9 @@ module Arium
 
         nucleus.occupant = Occ.village
         [
-          nucleus.neighbor(Direction.southeast),
-          nucleus.neighbor(Direction.south),
-          nucleus.neighbor(Direction.southwest),
+          generation.neighbor(nucleus, Direction.southeast),
+          generation.neighbor(nucleus, Direction.south),
+          generation.neighbor(nucleus, Direction.southwest),
         ].compact.each do |neighbor|
           neighbor.occupant = Occ.farm
         end
@@ -44,7 +44,7 @@ module Arium
       def add_lake!(generation)
         center = generation.cells.sample
 
-        center.manhattan_nearby(distance: 10).each do |nearby|
+        generation.manhattan_nearby(center, distance: 10).each do |nearby|
           nearby.occupant = Occ.water
         end
       end

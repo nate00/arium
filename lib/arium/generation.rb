@@ -17,6 +17,48 @@ module Arium
       self.wrap(array)
     end
 
+    def self.delegate_to_grid(method)
+      define_method(method) do |*args|
+        grid.__send__(method, *args)
+      end
+    end
+
+    # Delegate methods to +grid+, but convert the result from Points to Cells.
+    def self.delegate_to_grid_and_cellify(method)
+      define_method(method) do |*args|
+        result = grid.__send__(method, *args)
+
+        cellify(result)
+      end
+    end
+
+    def cellify(point_or_points)
+      if point_or_points.nil?
+        nil
+      elsif point_or_points.respond_to?(:row) && point_or_points.respond_to?(:col)
+        # Argument is a point.
+        self[point_or_points]
+      else
+        # Argument is a point collection, or a collection of nested point
+        # collections.
+        point_or_points.map { |element| cellify(element) }
+      end
+    end
+
+    %i[
+      neighbor
+      euclidean_nearby
+      euclidean_neighbors
+      nearby
+      manhattan_nearby
+      neighbors
+    ].each { |method| delegate_to_grid_and_cellify(method) }
+
+    %i[
+      euclidean_distance
+      manhattan_distance
+    ].each { |method| delegate_to_grid(method) }
+
     def at(r, c)
       return nil unless include_point?(Point.new(r, c))
       @array[r] && @array[r][c]
@@ -27,8 +69,7 @@ module Arium
     end
 
     def include_point?(point)
-      point.row.between?(0, row_count - 1) &&
-        point.col.between?(0, column_count - 1)
+      grid.include?(point)
     end
 
     def each
@@ -84,19 +125,6 @@ module Arium
       end
     end
 
-    def slice(r_start, r_length, c_start, c_length)
-      r_start += row_count    if r_start < 0
-      c_start += column_count if c_start < 0
-
-      self.class.new(
-        Range.new(r_start, r_start + r_length, exclude_end: true).map do |r|
-          Range.new(c_start, c_start + c_length, exclude_end: true).map do |c|
-            at(r, c)
-          end
-        end
-      )
-    end
-
     def cells
       to_a.flatten
     end
@@ -112,6 +140,10 @@ module Arium
           { occupant: cell.occupant.serialize, altitude: cell.altitude }
         end
       end
+    end
+
+    def grid
+      Grid.new(row_count, column_count)
     end
 
     def row_count
@@ -135,7 +167,7 @@ module Arium
     def wrap(raw_array)
       raw_array.map.with_index do |row, r|
         row.map.with_index do |hash, c|
-          Cell.new(Occupant.new(hash[:occupant]), hash[:altitude], self, r, c)
+          Cell.new(Occupant.new(hash[:occupant]), hash[:altitude], r, c)
         end
       end
     end

@@ -21,5 +21,9 @@ module Arium
     def id
       [row, col]
     end
+
+    def to_point
+      self
+    end
   end
 end

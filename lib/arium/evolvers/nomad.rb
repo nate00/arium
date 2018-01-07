@@ -5,17 +5,17 @@ module Arium
         agg = Resolver.new(previous_gen, resolver)
 
         villages(previous_gen).each do |village|
-          if starving? village
+          if starving?(village, previous_gen)
             next
           end
 
-          if quenched? village
+          if quenched?(village, previous_gen)
             if Kernel.rand < 0.10
-              new_village = village.nearby.shuffle.first
+              new_village = previous_gen.nearby(village).shuffle.first
               agg.add(new_village.point, Occ.village)
-              new_village.nearby.each { |n| agg.add(n.point, Occ.farm) }
+              previous_gen.nearby(new_village).each { |n| agg.add(n.point, Occ.farm) }
             end
-            village.nearby.each do |neighbor|
+            previous_gen.nearby(village).each do |neighbor|
               agg.add(neighbor.point, Occ.farm)
             end
             agg.add(village.point, Occ.village)
@@ -43,27 +43,29 @@ module Arium
       end
 
       def migrate!(village, generation, agg)
-        direction = average_offset(village, adjacent_farms(village))
-        new_village = Point.new(village.row + direction[0], village.col + direction[1])
-        agg.add(new_village, Occ.village)
+        direction = average_offset(village, adjacent_farms(village, generation))
+        new_village = generation.neighbor(village, direction)
+        return unless new_village
+        agg.add(new_village.point, Occ.village)
 
-        new_farm = Point.new(new_village.row + direction[0], new_village.col + direction[1])
-        generation[new_village].nearby.each do |neighbor|
-          if neighbor.manhattan_distance(new_farm) <= 1
+        new_farm = generation.neighbor(new_village, direction)
+        return unless new_farm
+        generation.nearby(new_village).each do |neighbor|
+          if generation.manhattan_distance(neighbor, new_farm) <= 1
             agg.add(neighbor.point, Occ.farm)
           end
         end
       end
 
       def average_offset(source, destinations)
-        [
-          destinations.map { |dest| dest.row - source.row }.inject(:+) <=> 0,
-          destinations.map { |dest| dest.col - source.col }.inject(:+) <=> 0,
-        ]
+        Direction.new(
+          destinations.map { |dest| dest.row - source.row }.inject(0, :+) <=> 0,
+          destinations.map { |dest| dest.col - source.col }.inject(0, :+) <=> 0,
+        )
       end
 
-      def adjacent_farms(village)
-        village.nearby.select(&:occupant_is_farm?)
+      def adjacent_farms(village, gen)
+        gen.nearby(village).select(&:occupant_is_farm?)
       end
 
       def resolver
@@ -80,12 +82,12 @@ module Arium
         end
       end
 
-      def quenched?(village)
-        village.nearby.any?(&:occupant_is_water?)
+      def quenched?(village, gen)
+        gen.nearby(village).any?(&:occupant_is_water?)
       end
 
-      def starving?(village)
-        village.nearby.select(&:occupant_is_farm?).count < 2
+      def starving?(village, gen)
+        gen.nearby(village).count < 2
       end
 
       def villages(generation)
