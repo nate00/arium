@@ -36,54 +36,45 @@ module Arium
       end
 
       def render(generation)
-        cells = generation.to_a.map do |rows|
-          rows.map do |cell|
-            cell.occupant
-          end
-        end
-
-        height = cells.size * unit
-        width = cells.first.size * unit
+        height = generation.row_count * unit
+        width = generation.column_count * unit
         with_image(width, height, config.outfile) do |image|
-          cells.map.with_index do |row, row_index|
-            row.map.with_index do |cell, col_index|
-              northwest = quadrant_occupant(cell,
+          generation.to_a.each do |row|
+            row.each do |cell|
+              northwest = quadrant_occupant(cell.occupant,
                 [
-                  cells[row_index - 1] && cells[row_index - 1][col_index],
-                  cells[row_index] && cells[row_index][col_index - 1],
+                  cell.neighbor(Direction.north)&.occupant,
+                  cell.neighbor(Direction.west)&.occupant,
                 ],
-                cells[row_index - 1] && cells[row_index - 1][col_index - 1],
+                cell.neighbor(Direction.northwest)&.occupant,
               )
-              northeast = quadrant_occupant(cell,
+              northeast = quadrant_occupant(cell.occupant,
                 [
-                  cells[row_index - 1] && cells[row_index - 1][col_index],
-                  cells[row_index] && cells[row_index][col_index + 1],
+                  cell.neighbor(Direction.north)&.occupant,
+                  cell.neighbor(Direction.east)&.occupant,
                 ],
-                cells[row_index - 1] && cells[row_index - 1][col_index + 1],
+                cell.neighbor(Direction.northeast)&.occupant,
               )
-              southwest = quadrant_occupant(cell,
+              southwest = quadrant_occupant(cell.occupant,
                 [
-                  cells[row_index] && cells[row_index][col_index - 1],
-                  cells[row_index + 1] && cells[row_index + 1][col_index],
+                  cell.neighbor(Direction.south)&.occupant,
+                  cell.neighbor(Direction.west)&.occupant,
                 ],
-                cells[row_index + 1] && cells[row_index + 1][col_index - 1],
+                cell.neighbor(Direction.southwest)&.occupant,
               )
-              southeast = quadrant_occupant(cell,
+              southeast = quadrant_occupant(cell.occupant,
                 [
-                  cells[row_index] && cells[row_index][col_index + 1],
-                  cells[row_index + 1] && cells[row_index + 1][col_index],
+                  cell.neighbor(Direction.south)&.occupant,
+                  cell.neighbor(Direction.east)&.occupant,
                 ],
-                cells[row_index + 1] && cells[row_index + 1][col_index + 1],
+                cell.neighbor(Direction.southeast)&.occupant,
               )
 
-              puts "#{row_index} #{col_index}"
-              paint_quadrant(image, northwest, row_index, col_index, :northwest)
-              paint_quadrant(image, northeast, row_index, col_index, :northeast)
-              paint_quadrant(image, southwest, row_index, col_index, :southwest)
-              paint_quadrant(image, southeast, row_index, col_index, :southeast)
-              puts "#{row_index} #{col_index} quad"
-              paint_circle(image, cell, row_index, col_index)
-              puts "#{row_index} #{col_index} circle"
+              paint_quadrant(image, northwest, cell.row, cell.col, :northwest)
+              paint_quadrant(image, northeast, cell.row, cell.col, :northeast)
+              paint_quadrant(image, southwest, cell.row, cell.col, :southwest)
+              paint_quadrant(image, southeast, cell.row, cell.col, :southeast)
+              paint_circle(image, cell.occupant, cell.row, cell.col)
             end
           end
         end
@@ -91,10 +82,10 @@ module Arium
 
       private
 
-      def quadrant_occupant(cell, lateral_neighbors, diagonal_neighbor)
+      def quadrant_occupant(occupant, lateral_neighbors, diagonal_neighbor)
         neighbors = lateral_neighbors + [diagonal_neighbor]
         if neighbors.any? { |n| n.nil? }
-          cell
+          occupant
         elsif neighbors.all? { |n| n == neighbors.first }
           neighbors.first
         elsif (
@@ -105,13 +96,13 @@ module Arium
               # There may be a clump conflict if this cell wants to clump with
               # its diagonal neighbor, and the lateral cells want to clump
               # together. In that case, whichever cells are "clumpier" win.
-              diagonal_neighbor != cell ||
-              clumpiness(contiguous_candidate) > clumpiness(cell)
+              diagonal_neighbor != occupant ||
+              clumpiness(contiguous_candidate) > clumpiness(occupant)
             )
         )
           contiguous_candidate
         else
-          cell
+          occupant
         end
       end
 
@@ -125,7 +116,7 @@ module Arium
         image.save(filename)
       end
 
-      def paint_quadrant(image, cell, row, col, quadrant)
+      def paint_quadrant(image, occupant, row, col, quadrant)
         west = col * unit
         east = west + unit / 2
         north = row * unit
@@ -141,22 +132,24 @@ module Arium
             [east, south]
           end
 
-        image.rect(left, top, left + unit / 2, top + unit / 2, ChunkyPNG::Color::TRANSPARENT, color(cell))
+        image.rect(left, top, left + unit / 2, top + unit / 2,
+          ChunkyPNG::Color::TRANSPARENT, color(occupant))
       end
 
-      def paint_circle(image, cell, row, col)
+      def paint_circle(image, occupant, row, col)
         left = col * unit
         top = row * unit
         radius = unit / 2
-        image.circle(left + radius, top + radius, radius, ChunkyPNG::Color::TRANSPARENT, color(cell))
+        image.circle(left + radius, top + radius, radius,
+          ChunkyPNG::Color::TRANSPARENT, color(occupant))
       end
 
-      def clumpiness(cell)
-        CLUMPINESS.index(cell)
+      def clumpiness(occupant)
+        CLUMPINESS.index(occupant)
       end
 
-      def color(cell)
-        COLORS.fetch(cell, 'red')
+      def color(occupant)
+        COLORS.fetch(occupant, 'red')
       end
     end
   end
