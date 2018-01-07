@@ -30,7 +30,7 @@ FileUtils.mkdir_p('demo_generations')
 
 i = 0
 loop do
-  renderer.render(world.generation(i))
+  puts renderer.render_file(world.generation(i))
   puts
   i += 1
 end

@@ -7,11 +7,11 @@ module Arium
       include Persistence
 
       COLORS = {
-        'plain' => 'green',
-        'mountain' => 'white',
-        'farm' => 'brown',
-        'village' => 'gray',
-        'water' => 'blue',
+        Occ.plain => 'green',
+        Occ.mountain => 'white',
+        Occ.farm => 'brown',
+        Occ.village => 'gray',
+        Occ.water => 'blue',
       }
 
       # Config:
@@ -21,13 +21,16 @@ module Arium
       config.pixels_per_cell = 10
       config.outfile = 'outfile.png'
 
-      def render(infile)
-        colors =
-          read_generation(infile).map do |row|
-            row.map do |cell|
-              COLORS[cell[:occupant]] || 'red'
-            end
+      def render_file(infile)
+        render(Generation.wrap(read_generation(infile)))
+      end
+
+      def render(generation)
+        colors = generation.to_a.map do |row|
+          row.map do |cell|
+            COLORS[cell.occupant] || 'red'
           end
+        end
 
         height = colors.size * unit
         width = colors.first.size * unit

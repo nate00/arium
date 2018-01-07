@@ -6,13 +6,13 @@ module Arium
       include Persistence
 
       COLORS = {
-        'plain' => :green,
-        'mountain' => :white,
-        'farm' => :light_red,
-        'village' => :gray,
-        'water' => :blue,
-        'void' => :white,
-        'antivoid' => :light_gray,
+        Occ.plain => :green,
+        Occ.mountain => :white,
+        Occ.farm => :light_red,
+        Occ.village => :gray,
+        Occ.water => :blue,
+        Occ.void => :white,
+        Occ.antivoid => :light_gray,
       }
 
       # Config:
@@ -22,23 +22,23 @@ module Arium
       config.characters = :grid_numbers
       config.whiny_unrecognized = true
 
-      def render(infile)
-        puts render_grid(read_generation(infile))
+      def render_file(infile)
+        render(Generation.wrap(read_generation(infile)))
       end
 
-      private
-
-      def render_grid(grid)
-        grid.map.with_index do |row, row_index|
-          row.map.with_index do |cell, col_index|
-            render_cell(row_index, col_index, cell)
+      def render(generation)
+        generation.to_a.map do |row|
+          row.map do |cell|
+            render_cell(cell)
           end.join
         end.join("\n")
       end
 
-      def render_cell(row, col, cell)
-        character = character_for(row, col, cell)
-        color = COLORS.fetch(cell[:occupant]) { |occ| unrecognized(occ) }
+      private
+
+      def render_cell(cell)
+        character = character_for(cell)
+        color = COLORS.fetch(cell.occupant) { |occ| unrecognized(occ) }
 
         character.colorize(color: :black, background: color)
       end
@@ -51,7 +51,7 @@ module Arium
         end
       end
 
-      def character_for(row, col, cell, base: 10)
+      def character_for(cell, base: 10)
         case config.characters
         when :none then ' '
         when :grid_numbers
@@ -80,19 +80,19 @@ module Arium
           #  1.......8.1.......8.1.......8.
           #  1........91........91........9
           #
-          if row % base == 0 && col % base == 0
+          if cell.row % base == 0 && cell.col % base == 0
             '+'                                 # intersection
-          elsif row % base == 0
-            ((col / base) % base).to_s(base)    # row
-          elsif col % base == 0
-            ((row / base) % base).to_s(base)    # column
-          elsif row % base == col % base
-            (row % base).to_s(base)             # diagonal
+          elsif cell.row % base == 0
+            ((cell.col / base) % base).to_s(base)    # row
+          elsif cell.col % base == 0
+            ((cell.row / base) % base).to_s(base)    # column
+          elsif cell.row % base == cell.col % base
+            (cell.row % base).to_s(base)             # diagonal
           else
             '.'
           end
         when :altitude
-          (cell[:altitude] / 10).to_s
+          (cell.altitude / 10).to_s
         else
           raise "Invalid config.characters: #{config.characters}"
         end

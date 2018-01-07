@@ -7,21 +7,21 @@ module Arium
       include Persistence
 
       COLORS = {
-        'plain' => 'green',
-        'mountain' => 'white',
-        'farm' => 'brown',
-        'village' => 'gray',
-        'water' => 'blue',
+        Occ.plain => 'green',
+        Occ.mountain => 'white',
+        Occ.farm => 'brown',
+        Occ.village => 'gray',
+        Occ.water => 'blue',
       }
 
       # Clumpier cell occupants are more likely to have diagonally adjacent
       # cells rendered contiguously.
-      CLUMPINESS = %w[
-        plain
-        farm
-        village
-        mountain
-        water
+      CLUMPINESS = [
+        Occ.plain,
+        Occ.farm,
+        Occ.village,
+        Occ.mountain,
+        Occ.water,
       ]
 
       # Config:
@@ -31,10 +31,14 @@ module Arium
       config.pixels_per_cell = 10
       config.outfile = 'outfile.png'
 
-      def render(infile)
-        cells = read_generation(infile).map do |rows|
+      def render_file(infile)
+        render(Generation.wrap(read_generation(infile)))
+      end
+
+      def render(generation)
+        cells = generation.to_a.map do |rows|
           rows.map do |cell|
-            cell[:occupant]
+            cell.occupant
           end
         end
 
