@@ -120,6 +120,10 @@ module Arium
       "<Generation:#{@array.inspect}>"
     end
 
+    def graphical_inspect(*args)
+      Renderers::Terminal.with_config(*args).render(self)
+    end
+
     private
 
     def wrap(raw_array)
