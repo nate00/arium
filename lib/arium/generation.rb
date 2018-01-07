@@ -18,11 +18,17 @@ module Arium
     end
 
     def at(r, c)
+      return nil unless include_point?(Point.new(r, c))
       @array[r] && @array[r][c]
     end
 
     def [](point)
       at(point.row, point.col)
+    end
+
+    def include_point?(point)
+      point.row.between?(0, row_count - 1) &&
+        point.col.between?(0, column_count - 1)
     end
 
     def each
