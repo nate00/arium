@@ -9,7 +9,7 @@ module Arium
       config.lakes = 1
 
       def create
-        Generation.create(config.rows, config.columns, 'plain', 10).tap do |generation|
+        Generation.create(config.rows, config.columns, 'plain', 0).tap do |generation|
           config.lakes.times do
             add_lake!(generation)
           end
@@ -32,12 +32,14 @@ module Arium
         end
 
         nucleus.occupant = Occ.village
+        nucleus.altitude = 30
         [
           generation.neighbor(nucleus, Direction.southeast),
           generation.neighbor(nucleus, Direction.south),
           generation.neighbor(nucleus, Direction.southwest),
         ].compact.each do |neighbor|
           neighbor.occupant = Occ.farm
+          neighbor.altitude = 20
         end
       end
 
@@ -46,6 +48,7 @@ module Arium
 
         generation.manhattan_nearby(center, distance: 10).each do |nearby|
           nearby.occupant = Occ.water
+          nearby.altitude = 10
         end
       end
     end

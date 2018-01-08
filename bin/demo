@@ -14,6 +14,7 @@ evolvers = [
   Arium::Evolvers::Nomad.new,
   Arium::Evolvers::Example.new,
   Arium::Evolvers::Void.new,
+  Arium::Evolvers::Village.new,
 ]
 
 world = Arium::World.with_config(
@@ -22,7 +23,7 @@ world = Arium::World.with_config(
   generation_locator: proc { |number| "demo_generations/#{number}" },
 )
 
-renderer = Arium::Renderers::Terminal.with_config(characters: :altitude)
+renderer = Arium::Renderers::Terminal.with_config(characters: :contour)
 
 generations = 20
 

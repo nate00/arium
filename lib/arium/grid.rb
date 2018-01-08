@@ -32,6 +32,21 @@ module Arium
       points.select { |p| include?(p) }
     end
 
+    # is_inside: A block that takes a Point and returns whether that Point is
+    #   inside the region.
+    #
+    # Returns a collection of the points that bound the region.
+    #
+    def boundary(&is_inside)
+      all_points.               # Boundary points:
+        select(&is_inside).     #   - Are inside
+        select do |point|       #   - Have at least one outside neighbor
+          neighbors(point).any? do |neighbor|
+            !is_inside.call(neighbor)
+          end
+        end
+    end
+
     def neighbor(point, direction)
       bounded(Point.new(
         point.row + direction.row_delta,
@@ -64,6 +79,11 @@ module Arium
       all_points.select do |point|
         manhattan_distance(center, point) <= distance
       end
+    end
+
+    def manhattan_neighbors(center, distance: 1)
+      manhattan_nearby(center, distance: distance).
+        select { |point| point != center.to_point }
     end
 
     def neighbors(center, distance: 1)

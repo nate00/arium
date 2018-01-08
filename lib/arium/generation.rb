@@ -18,15 +18,27 @@ module Arium
     end
 
     def self.delegate_to_grid(method)
-      define_method(method) do |*args|
-        grid.__send__(method, *args)
+      define_method(method) do |*args, &block|
+        grid.__send__(method, *args, &block)
       end
     end
 
     # Delegate methods to +grid+, but convert the result from Points to Cells.
     def self.delegate_to_grid_and_cellify(method)
-      define_method(method) do |*args|
-        result = grid.__send__(method, *args)
+      define_method(method) do |*args, &block|
+        result = grid.__send__(method, *args, &block)
+
+        cellify(result)
+      end
+    end
+
+    # Delegate methods to +grid+, but convert the result from Points to Cells,
+    # and convert the first block argument from a Point to a Cell.
+    def self.delegate_to_grid_and_cellify_block(method)
+      define_method(method) do |*method_args, &method_block|
+        result = grid.__send__(method, *method_args) do |*block_args|
+          method_block.call(self[block_args.first], *block_args[1..-1])
+        end
 
         cellify(result)
       end
@@ -46,18 +58,23 @@ module Arium
     end
 
     %i[
+      euclidean_distance
+      manhattan_distance
+    ].each { |method| delegate_to_grid(method) }
+
+    %i[
       neighbor
       euclidean_nearby
       euclidean_neighbors
-      nearby
       manhattan_nearby
+      manhattan_neighbors
+      nearby
       neighbors
     ].each { |method| delegate_to_grid_and_cellify(method) }
 
     %i[
-      euclidean_distance
-      manhattan_distance
-    ].each { |method| delegate_to_grid(method) }
+      boundary
+    ].each { |method| delegate_to_grid_and_cellify_block(method) }
 
     def at(r, c)
       return nil unless include_point?(Point.new(r, c))

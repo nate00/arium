@@ -16,7 +16,7 @@ module Arium
       }
 
       # Config:
-      #   characters - :grid_numbers, :altitude, or :none
+      #   characters - :grid_numbers, :altitude, :contour or :none
       #   whiny_unrecognized - boolean
 
       config.characters = :grid_numbers
@@ -29,18 +29,26 @@ module Arium
       def render(generation)
         generation.to_a.map do |row|
           row.map do |cell|
-            render_cell(cell)
+            render_cell(cell, generation)
           end.join
         end.join("\n")
       end
 
       private
 
-      def render_cell(cell)
-        character = character_for(cell)
+      def render_cell(cell, gen)
+        character = character_for(cell, gen)
         color = COLORS.fetch(cell.occupant) { |occ| unrecognized(occ) }
 
         character.colorize(color: :black, background: color)
+      end
+
+      def is_boundary?(cell, gen)
+        @boundary ||= gen.boundary do |point|
+          gen[point].altitude >= 10
+        end.map(&:to_point)
+
+        @boundary.include?(cell.point)
       end
 
       def unrecognized(cell)
@@ -51,7 +59,7 @@ module Arium
         end
       end
 
-      def character_for(cell, base: 10)
+      def character_for(cell, gen, base: 10)
         case config.characters
         when :none then ' '
         when :grid_numbers
@@ -93,9 +101,30 @@ module Arium
           end
         when :altitude
           (cell.altitude / 10).to_s
+        when :contour
+          contour_altitude = countours(gen).select do |_altitude, points|
+            points.include?(cell.point)
+          end.map { |altitude, _point| altitude }.max
+
+          if contour_altitude
+            (contour_altitude / 10).to_s
+          else
+            ' '
+          end
         else
           raise "Invalid config.characters: #{config.characters}"
         end
+      end
+
+      def countours(gen)
+        @contours ||= (10..100).step(10).map do |altitude|
+          [
+            altitude,
+            gen.boundary do |point|
+              gen[point].altitude >= altitude
+            end.map(&:to_point)
+          ]
+        end.to_h
       end
     end
   end
