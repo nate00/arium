@@ -76,6 +76,7 @@ module Arium
 
     %i[
       boundary
+      components
     ].each { |method| delegate_to_grid_and_cellify_block(method) }
 
     def at(r, c)

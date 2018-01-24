@@ -47,6 +47,55 @@ module Arium
         end
     end
 
+    # Returns a collection of Point arrays, each of which represents one
+    # connected component. Each component contains points with the same category
+    # (as determined by categorizer).
+    def components(&categorizer)
+      components = {}
+
+      stack = all_points
+
+      while (point = stack.pop)
+        next if components.key?(point)
+
+        # Look for an already-componentized neighbor in the same category to
+        # join.
+        joinable_neighbor = manhattan_neighbors(point).
+          select do |n|
+            components.key?(n)
+          end.select do |n|
+            categorizer.call(n) == categorizer.call(point)
+          end.first
+
+        joinable_component =
+          if joinable_neighbor
+            components[joinable_neighbor]
+          else
+            []
+          end
+
+        joinable_component << point
+        components[point] = joinable_component
+
+        # Continue exploring into uncomponentized neighbors in the same category.
+        # Exploring the entirety of a component before moving onto the next one
+        # means we needn't merge components.
+        explore_next = manhattan_neighbors(point).
+          select do |n|
+            !components.key?(n)
+          end.select do |n|
+            categorizer.call(n) == categorizer.call(point)
+          end
+
+        stack.push(*explore_next)
+      end
+
+      # We know that there's exactly one array per component, so we can compare
+      # them by object_id. The normal hash + eql? comparison is too slow for big
+      # arrays.
+      components.values.uniq(&:object_id)
+    end
+
     def neighbor(point, direction)
       bounded(Point.new(
         point.row + direction.row_delta,

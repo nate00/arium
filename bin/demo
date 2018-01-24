@@ -23,7 +23,7 @@ world = Arium::World.with_config(
   generation_locator: proc { |number| "demo_generations/#{number}" },
 )
 
-renderer = Arium::Renderers::Terminal.with_config(characters: :contour)
+renderer = Arium::Renderers::Terminal.with_config(characters: :occupant_component)
 
 generations = 20
 

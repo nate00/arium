@@ -16,7 +16,8 @@ module Arium
       }
 
       # Config:
-      #   characters - :grid_numbers, :altitude, :contour or :none
+      #   characters - :grid_numbers, :altitude, :contour, :occupant_component,
+      #                or :none
       #   whiny_unrecognized - boolean
 
       config.characters = :grid_numbers
@@ -111,9 +112,18 @@ module Arium
           else
             ' '
           end
+        when :occupant_component
+          occupant_components(gen).
+            index { |component| component.include?(cell) }.
+            to_s.chars.last || ' '
         else
           raise "Invalid config.characters: #{config.characters}"
         end
+      end
+
+      def occupant_components(gen)
+        @occupant_components ||= {}
+        @occupant_components[gen] ||= gen.components(&:occupant)
       end
 
       def countours(gen)
