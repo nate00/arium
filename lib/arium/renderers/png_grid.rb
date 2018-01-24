@@ -26,19 +26,18 @@ module Arium
       end
 
       def render(generation)
-        colors = generation.to_a.map do |row|
-          row.map do |cell|
-            COLORS[cell.occupant] || 'red'
-          end
-        end
+        boundary = generation.boundary { |c| c.altitude >= 10 }
 
-        height = colors.size * unit
-        width = colors.first.size * unit
+        height = generation.row_count * unit
+        width = generation.column_count * unit
         with_image(width, height, config.outfile) do |image|
-          colors.map.with_index do |row, row_index|
-            row.map.with_index do |color, col_index|
-              paint(image, color, row_index, col_index)
-            end
+          generation.each do |cell|
+            paint(
+              image,
+              cell,
+              generation,
+              boundary,
+            )
           end
         end
       end
@@ -55,10 +54,37 @@ module Arium
         image.save(filename)
       end
 
-      def paint(image, color, row, col)
-        left = col * unit
-        top = row * unit
-        image.rect(left, top, left + unit, top + unit, ChunkyPNG::Color::TRANSPARENT, color)
+      def paint(image, cell, generation, boundary)
+        left = cell.col * unit
+        right = left + unit
+        top = cell.row * unit
+        bottom = top + unit
+        image.rect(
+          left, top, right, bottom,
+          ChunkyPNG::Color::TRANSPARENT,
+          COLORS.fetch(cell.occupant, 'red')
+        )
+
+        return unless boundary.include?(cell)
+
+        mid_x = left + unit / 2
+        mid_y = top + unit / 2
+
+        {
+          Direction.north => [mid_x, top],
+          Direction.east => [right, mid_y],
+          Direction.south => [mid_x, bottom],
+          Direction.west => [left, mid_y],
+        }.each do |direction, coordinates|
+          neighbor = generation.neighbor(cell, direction)
+          next unless boundary.include?(neighbor)
+
+          image.line(
+            *[mid_x, mid_y],
+            *coordinates,
+            'black'
+          )
+        end
       end
     end
   end
