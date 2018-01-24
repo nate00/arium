@@ -25,5 +25,13 @@ module Arium
     def to_point
       self
     end
+
+    def inspect
+      "(#{row}, #{col})"
+    end
+
+    def to_s
+      inspect
+    end
   end
 end
