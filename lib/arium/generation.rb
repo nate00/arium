@@ -50,10 +50,12 @@ module Arium
       elsif point_or_points.respond_to?(:row) && point_or_points.respond_to?(:col)
         # Argument is a point.
         self[point_or_points]
-      else
+      elsif point_or_points.respond_to?(:each)
         # Argument is a point collection, or a collection of nested point
         # collections.
         point_or_points.map { |element| cellify(element) }
+      else
+        raise "Invalid points: #{point_or_points.class}"
       end
     end
 
