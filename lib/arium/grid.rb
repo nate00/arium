@@ -76,7 +76,7 @@ module Arium
     end
 
     def manhattan_nearby(center, distance: 1)
-      all_points.select do |point|
+      nearby(center, distance: distance).select do |point|
         manhattan_distance(center, point) <= distance
       end
     end
