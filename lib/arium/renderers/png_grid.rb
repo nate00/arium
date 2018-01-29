@@ -26,18 +26,16 @@ module Arium
       end
 
       def render(generation)
-        boundary = generation.boundary { |c| c.altitude >= 10 }
-
         height = generation.row_count * unit
         width = generation.column_count * unit
         with_image(width, height, config.outfile) do |image|
           generation.each do |cell|
-            paint(
-              image,
-              cell,
-              generation,
-              boundary,
-            )
+            paint_background(image, cell)
+          end
+          generation.boundaries { |c| c && c.altitude >= 10 }.each do |boundary|
+            (boundary + boundary.first(2)).each_cons(3) do |prev, curr, nex|
+              paint_contour(image, prev, curr, nex)
+            end
           end
         end
       end
@@ -54,36 +52,94 @@ module Arium
         image.save(filename)
       end
 
-      def paint(image, cell, generation, boundary)
-        left = cell.col * unit
-        right = left + unit
-        top = cell.row * unit
-        bottom = top + unit
+      def paint_background(image, cell)
+        square = Square.new(cell, unit)
         image.rect(
-          left, top, right, bottom,
+          square.left, square.top, square.right, square.bottom,
           ChunkyPNG::Color::TRANSPARENT,
           COLORS.fetch(cell.occupant, 'red')
         )
+      end
 
-        return unless boundary.include?(cell)
+      def paint_contour(image, prev_cell, curr_cell, next_cell)
+        s = Square.new(curr_cell, unit)
 
-        mid_x = left + unit / 2
-        mid_y = top + unit / 2
+        prev_direction = Direction.from(prev_cell, to: curr_cell)
+        start_dot =
+          if prev_direction == Direction.north
+            [s.near_left, s.bottom]
+          elsif prev_direction == Direction.east
+            [s.left, s.near_top]
+          elsif prev_direction == Direction.south
+            [s.near_right, s.top]
+          elsif prev_direction == Direction.west
+            [s.right, s.near_bottom]
+          else
+            raise "Invalid prev_direction: #{prev_direction}"
+          end
 
-        {
-          Direction.north => [mid_x, top],
-          Direction.east => [right, mid_y],
-          Direction.south => [mid_x, bottom],
-          Direction.west => [left, mid_y],
-        }.each do |direction, coordinates|
-          neighbor = generation.neighbor(cell, direction)
-          next unless boundary.include?(neighbor)
+        next_direction = Direction.from(curr_cell, to: next_cell)
+        finish_dot =
+          if next_direction == Direction.north
+            [s.near_left, s.top]
+          elsif next_direction == Direction.east
+            [s.right, s.near_top]
+          elsif next_direction == Direction.south
+            [s.near_right, s.bottom]
+          elsif next_direction == Direction.west
+            [s.left, s.near_bottom]
+          else
+            raise "Invalid next_direction: #{next_direction}"
+          end
 
-          image.line(
-            *[mid_x, mid_y],
-            *coordinates,
-            'black'
-          )
+        image.line(
+          *start_dot,
+          *finish_dot,
+          'black'
+        )
+      end
+
+      class Square
+        attr_reader :cell
+        private
+        attr_reader :unit
+        public
+
+        def initialize(cell, unit)
+          @cell = cell
+          @unit = unit
+        end
+
+        def top
+          cell.row * unit
+        end
+
+        def near_top
+          top + unit / 3
+        end
+
+        def near_bottom
+          top + unit * 2 / 3
+        end
+
+        def bottom
+          top + unit
+        end
+
+        def left
+          cell.col * unit
+        end
+
+        def near_left
+          left + unit / 3
+        end
+
+        def near_right
+          left + unit * 2 / 3
+        end
+
+        def right
+          left + unit
         end
       end
     end

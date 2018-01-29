@@ -32,6 +32,131 @@ module Arium
       points.select { |p| include?(p) }
     end
 
+    # Returns an array of paths, where each path traverses a boundary of a
+    # region defined by is_inside.
+    #
+    #
+    # ## Directionality
+    #
+    # You can traverse a boundary in two different directions. Here we adopt
+    # the convention that boundaries are left-hugging. Thus, external boundaries
+    # go clockwise and internal boundaries go counterclockwise.
+    #
+    # If we take the following region, with inside points labelled "i":
+    #
+    #   ........
+    #   .iiiiii.
+    #   .iiiiii.
+    #   .ii..ii.
+    #   .iiiiii.
+    #   .iiiiii.
+    #   ........
+    #
+    # then there's one external boundary that goes clockwise:
+    #
+    #   ........
+    #   .XX>>XX.
+    #   .X....X.
+    #   .X....X.
+    #   .X....X.
+    #   .XX<<XX.
+    #   ........
+    #
+    # and one internal boundary that goes counterclockwise:
+    #
+    #   ........
+    #   ........
+    #   ..X<<X..
+    #   ..X..X..
+    #   ..X>>X..
+    #   ........
+    #   ........
+    #
+    def boundaries(&is_inside)
+      boundaries = []
+
+      all_points.
+        select(&is_inside).
+        each do |first_point|
+          outside_neighbors = manhattan_neighbors(first_point).reject(&is_inside)
+
+          if outside_neighbors.empty?
+            next    # Not a boundary point.
+          end
+
+          # Special-case single-point regions because the algorithm below
+          # requires a second boundary point.
+          if outside_neighbors.size == 4
+            boundaries << boundary_starting_at(
+              first_point,
+              Direction.north,
+              &is_inside
+            )
+
+            next
+          end
+
+          outside_neighbors.each do |outside_neighbor|
+            path_direction = Direction.
+              from(first_point, to: outside_neighbor).
+              turn(:right)
+            second_point = advance(first_point, path_direction)
+            if is_inside.(second_point)
+              boundaries <<
+                boundary_starting_at(first_point, path_direction, &is_inside)
+            end
+          end
+        end
+
+      boundaries.uniq do |boundary|
+        # A boundary is uniquely identified by its first two points.
+        first = boundary.min_by(&:id)   # Any consistent way of choosing the first point is fine.
+        second = boundary[(boundary.index(first) + 1) % boundary.size]
+
+        [first.id, second.id]
+      end
+    end
+
+    private def
+    boundary_starting_at(starting_point, starting_direction, &is_inside)
+      # The boundary-finding algorithm below becomes uglier if we need to handle
+      # the case where the bounded region is a single point. So instead we handle
+      # that case separately.
+      if manhattan_neighbors(starting_point).none?(&is_inside)
+        return [starting_point]
+      end
+
+      path = [starting_point]
+      point = starting_point
+      direction = starting_direction
+
+      loop do
+        next_point = advance(point, direction)
+        if is_inside.(next_point)
+          path << next_point
+          point = next_point
+          direction = direction.turn(:left)
+        else
+          direction = direction.turn(:right)
+        end
+
+        # We've completed the path once we return to the start moving in the same
+        # direction we started in. If we return to the start in the opposite
+        # direction, we may just be at a thin part of the region:
+        #
+        #   .....
+        #   .iIi.
+        #   .....
+        #
+        # The path will go through "I" twice, once westward and once eastward.
+        #
+        break if point == starting_point && direction == starting_direction
+      end
+
+      # Drop the last, repeated point
+      path[0 ... -1]
+    end
+
     # is_inside: A block that takes a Point and returns whether that Point is
     #   inside the region.
     #
@@ -102,6 +227,7 @@ module Arium
         point.col + direction.col_delta
       ))
     end
+    alias_method :advance, :neighbor
 
     def euclidean_nearby(center, distance: 1.0)
       all_points.select do |point|

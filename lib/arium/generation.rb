@@ -36,8 +36,8 @@ module Arium
     # and convert the first block argument from a Point to a Cell.
     def self.delegate_to_grid_and_cellify_block(method)
       define_method(method) do |*method_args, &method_block|
-        result = grid.__send__(method, *method_args) do |*block_args|
-          method_block.call(self[block_args.first], *block_args[1..-1])
+        result = grid.__send__(method, *method_args) do |point, *block_args|
+          method_block.call(point ? self[point] : point, *block_args)
         end
 
         cellify(result)
@@ -65,6 +65,7 @@ module Arium
     ].each { |method| delegate_to_grid(method) }
 
     %i[
+      advance
       neighbor
       euclidean_nearby
       euclidean_neighbors
@@ -76,6 +77,7 @@ module Arium
 
     %i[
       boundary
+      boundaries
       components
     ].each { |method| delegate_to_grid_and_cellify_block(method) }
 

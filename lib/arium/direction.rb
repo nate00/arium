@@ -16,6 +16,26 @@ module Arium
     def self.south;     new(1, 0);    end
     def self.southeast; new(1, 1);    end
 
+    def self.from(start, to:)
+      new(
+        to.row - start.row,
+        to.col - start.col
+      )
+    end
+
+    def turn(turning_direction)
+      case turning_direction
+      when :left
+        self.class.new(-col_delta, row_delta)
+      when :right
+        self.class.new(col_delta, -row_delta)
+      when :forward
+        self
+      when :backward
+        self.class.new(-row_delta, -col_delta)
+      end
+    end
+
     def inspect
       "((#{row_delta}, #{col_delta}))"
     end
