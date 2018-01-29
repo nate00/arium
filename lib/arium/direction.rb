@@ -16,6 +16,23 @@ module Arium
     def self.south;     new(1, 0);    end
     def self.southeast; new(1, 1);    end
 
+    def inspect
+      "((#{row_delta}, #{col_delta}))"
+    end
+    alias_method :to_s, :inspect
+
+    def ==(other)
+      other.is_a?(Direction) && self.id == other.id
+    end
+
+    def hash
+      id.hash
+    end
+
+    def id
+      [row_delta, col_delta]
+    end
+
     private
 
     def row_delta=(row_delta)
