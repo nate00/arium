@@ -33,7 +33,9 @@ next_gen = if previous_gen
 
 world.generation(next_gen)
 
-Arium::Renderers::PNGGrid.new.render_file(File.join(dir, next_gen.to_s))
+Arium::Renderers::PNGGrid.
+  with_config(pixels_per_cell: 35).
+  render_file(File.join(dir, next_gen.to_s))
 
 FileUtils.move('outfile.png', File.join(dir, "#{next_gen}.png"))
 `bin/set_desktop #{File.join(dir, "#{next_gen}.png")}`
