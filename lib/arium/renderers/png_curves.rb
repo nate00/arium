@@ -39,48 +39,98 @@ module Arium
         height = gen.row_count * unit
         width = gen.column_count * unit
         with_image(width, height, config.outfile) do |image|
-          gen.to_a.each do |row|
-            row.each do |cell|
-              northwest = quadrant_occupant(cell.occupant,
-                [
-                  gen.neighbor(cell, Direction.north)&.occupant,
-                  gen.neighbor(cell, Direction.west)&.occupant,
-                ],
-                gen.neighbor(cell, Direction.northwest)&.occupant,
-              )
-              northeast = quadrant_occupant(cell.occupant,
-                [
-                  gen.neighbor(cell, Direction.north)&.occupant,
-                  gen.neighbor(cell, Direction.east)&.occupant,
-                ],
-                gen.neighbor(cell, Direction.northeast)&.occupant,
-              )
-              southwest = quadrant_occupant(cell.occupant,
-                [
-                  gen.neighbor(cell, Direction.south)&.occupant,
-                  gen.neighbor(cell, Direction.west)&.occupant,
-                ],
-                gen.neighbor(cell, Direction.southwest)&.occupant,
-              )
-              southeast = quadrant_occupant(cell.occupant,
-                [
-                  gen.neighbor(cell, Direction.south)&.occupant,
-                  gen.neighbor(cell, Direction.east)&.occupant,
-                ],
-                gen.neighbor(cell, Direction.southeast)&.occupant,
-              )
-
-              paint_quadrant(image, northwest, cell.row, cell.col, :northwest)
-              paint_quadrant(image, northeast, cell.row, cell.col, :northeast)
-              paint_quadrant(image, southwest, cell.row, cell.col, :southwest)
-              paint_quadrant(image, southeast, cell.row, cell.col, :southeast)
-              paint_circle(image, cell.occupant, cell.row, cell.col)
+          gen.each do |cell|
+            paint_occupant(image, cell, gen)
+          end
+          gen.boundaries { |c| c && c.altitude >= 10 }.each do |boundary|
+            (boundary + boundary.first(2)).each_cons(3) do |prev, curr, nex|
+              paint_contour(image, prev, curr, nex)
             end
           end
         end
       end
 
       private
+
+      def paint_contour(image, prev_cell, curr_cell, next_cell)
+        s = Square.new(curr_cell, unit)
+
+        prev_direction = Direction.from(prev_cell, to: curr_cell)
+        start_dot =
+          if prev_direction == Direction.north
+            [s.near_left, s.bottom]
+          elsif prev_direction == Direction.east
+            [s.left, s.near_top]
+          elsif prev_direction == Direction.south
+            [s.near_right, s.top]
+          elsif prev_direction == Direction.west
+            [s.right, s.near_bottom]
+          else
+            raise "Invalid prev_direction: #{prev_direction}"
+          end
+
+        next_direction = Direction.from(curr_cell, to: next_cell)
+        finish_dot =
+          if next_direction == Direction.north
+            [s.near_left, s.top]
+          elsif next_direction == Direction.east
+            [s.right, s.near_top]
+          elsif next_direction == Direction.south
+            [s.near_right, s.bottom]
+          elsif next_direction == Direction.west
+            [s.left, s.near_bottom]
+          else
+            raise "Invalid next_direction: #{next_direction}"
+          end
+
+
+        curve_size = unit / 3
+
+
+
+        image.line(
+          *start_dot,
+          *finish_dot,
+          'black'
+        )
+      end
+
+      def paint_occupant(image, cell, gen)
+        northwest = quadrant_occupant(cell.occupant,
+          [
+            gen.neighbor(cell, Direction.north)&.occupant,
+            gen.neighbor(cell, Direction.west)&.occupant,
+          ],
+          gen.neighbor(cell, Direction.northwest)&.occupant,
+        )
+        northeast = quadrant_occupant(cell.occupant,
+          [
+            gen.neighbor(cell, Direction.north)&.occupant,
+            gen.neighbor(cell, Direction.east)&.occupant,
+          ],
+          gen.neighbor(cell, Direction.northeast)&.occupant,
+        )
+        southwest = quadrant_occupant(cell.occupant,
+          [
+            gen.neighbor(cell, Direction.south)&.occupant,
+            gen.neighbor(cell, Direction.west)&.occupant,
+          ],
+          gen.neighbor(cell, Direction.southwest)&.occupant,
+        )
+        southeast = quadrant_occupant(cell.occupant,
+          [
+            gen.neighbor(cell, Direction.south)&.occupant,
+            gen.neighbor(cell, Direction.east)&.occupant,
+          ],
+          gen.neighbor(cell, Direction.southeast)&.occupant,
+        )
+
+        paint_quadrant(image, northwest, cell.row, cell.col, :northwest)
+        paint_quadrant(image, northeast, cell.row, cell.col, :northeast)
+        paint_quadrant(image, southwest, cell.row, cell.col, :southwest)
+        paint_quadrant(image, southeast, cell.row, cell.col, :southeast)
+        paint_circle(image, cell.occupant, cell.row, cell.col)
+      end
 
       def quadrant_occupant(occupant, lateral_neighbors, diagonal_neighbor)
         neighbors = lateral_neighbors + [diagonal_neighbor]

@@ -33,7 +33,7 @@ next_gen = if previous_gen
 
 world.generation(next_gen)
 
-Arium::Renderers::PNGGrid.
+Arium::Renderers::PNGCurves.
   with_config(pixels_per_cell: 35).
   render_file(File.join(dir, next_gen.to_s))
 
